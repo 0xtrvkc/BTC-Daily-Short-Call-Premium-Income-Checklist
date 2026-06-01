@@ -191,35 +191,62 @@
     <div class="window-body" style="padding:10px 14px;">
 
 
-      <!-- //////////  MODULE 1 — MACRO CALENDAR  ////////// -->
-      <!-- CAN EDIT: item-body content, labels, rule-row text  -->
-      <!-- DO NOT EDIT: id="item-m1", id="cb-m1", id="skip-m1", data-skip="true" on skip checkbox -->
-      <div class="checklist-item" id="item-m1">
-        <div class="item-header" onclick="toggleModule('m1')">
-          <input type="checkbox" id="cb-m1" onclick="event.stopPropagation(); checkModule('m1')">
-          <span class="item-title">1. Check Macro Calendar on ForexFactory</span>
-          <span class="item-step">forexfactory.com</span>
-          <span class="expand-btn" id="exp-m1">▼</span>
-        </div>
-        <div class="item-body collapsed" id="body-m1">
-          <b>What to do:</b> Go to <span class="tool-link">forexfactory.com</span> → look at today's calendar → look for HIGH impact events (red folder icon) involving USD: FOMC, CPI, NFP, Fed Chair Speech.<br><br>
-          <b>Why it matters:</b> On these days BTC can move 3–5% in under 1 hour. Your short call strike at +2% will get blown through. The $30–$90 premium you collect is not worth a $300–$500 loss.<br><br>
-          <div class="rule-row"><span class="arrow">→</span><span>Calendar clear or only low/medium impact events:</span> <span class="tag tag-go">PROCEED</span></div>
-          <div class="rule-row"><span class="arrow">→</span><span>FOMC / CPI / NFP / Fed Chair Speech today:</span> <span class="tag tag-stop">SKIP — tick below</span></div>
-          <!-- AUTOMATION HOOK: replace the div below with your automated result.
-               Set auto-value text to what your script found.
-               If a skip condition is met, also check #skip-m1 via JS: document.getElementById('skip-m1').checked = true; updateProgress(); -->
-          <div class="auto-result">
-            <div class="auto-label">🤖 Automation result</div>
-            <div class="auto-value" id="auto-m1">— not yet automated —</div>
-          </div>
-          <div class="skip-trigger">
-            <input type="checkbox" id="skip-m1" data-skip="true" onchange="updateProgress()">
-            <label for="skip-m1">⛔ Tick this if you found FOMC / CPI / NFP / Fed Speech today → SKIP TRADE</label>
-          </div>
-        </div>
-      </div>
-      <!-- //////////  END MODULE 1  ////////// -->
+      <!-- ============================================================
+     MODULE 1 AUTOMATION — paste this <script> block anywhere
+     inside your checklist HTML (e.g. just before </body>)
+     Replace YOUR_GITHUB_USERNAME and YOUR_REPO_NAME below.
+     ============================================================ -->
+<script>
+(async function autoCheckMacro() {
+  const GITHUB_USER = "YOUR_GITHUB_USERNAME";   // ← change this
+  const REPO_NAME   = "YOUR_REPO_NAME";          // ← change this
+
+  // GitHub Pages serves from root, so this path is always /data/macro.json
+  // Add ?bust= to avoid stale cache
+  const url = `https://${GITHUB_USER}.github.io/${REPO_NAME}/data/macro.json?bust=${Date.now()}`;
+
+  const el       = document.getElementById("auto-m1");
+  const skipBox  = document.getElementById("skip-m1");
+
+  el.textContent = "⏳ Loading…";
+
+  try {
+    const res  = await fetch(url);
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const data = await res.json();
+
+    // ── Stale check: warn if JSON is from a previous day ──────────────
+    const today = new Date().toLocaleDateString("en-CA", {
+      timeZone: "Asia/Bangkok",  // YYYY-MM-DD in Bangkok time
+    });
+
+    if (data.date !== today) {
+      el.textContent =
+        `⚠️ Data is from ${data.date} (today is ${today}) — GitHub Action may not have run yet. Verify manually.`;
+      return;
+    }
+
+    // ── Display result ────────────────────────────────────────────────
+    if (data.skip) {
+      const eventList = data.events
+        .map(e => `${e.time} ${e.event}`)
+        .join(" | ");
+      el.textContent = `🔴 ${data.event_count} HIGH impact USD event(s): ${eventList}`;
+
+      // Trigger the skip checkbox automatically
+      skipBox.checked = true;
+      if (typeof updateProgress === "function") updateProgress();
+
+    } else {
+      el.textContent = `✅ ${data.summary}`;
+    }
+
+  } catch (err) {
+    el.textContent = `⚠️ Could not load macro data (${err.message}) — check manually.`;
+    console.error("[macro-check]", err);
+  }
+})();
+</script>
 
 
       <!-- //////////  MODULE 2 — IV vs HV RATIO  ////////// -->
