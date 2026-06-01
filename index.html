@@ -349,39 +349,94 @@ Straddle = $600 → Range: $74,290 – $75,490</div>
 
 
       <!-- //////////  MODULE 4 — FUNDING RATE  ////////// -->
-      <!-- CAN EDIT: item-body content, labels, rule-row text  -->
-      <!-- DO NOT EDIT: id="item-m4", id="cb-m4", id="skip-m4", data-skip="true" on skip checkbox -->
-      <div class="checklist-item" id="item-m4">
-        <div class="item-header" onclick="toggleModule('m4')">
-          <input type="checkbox" id="cb-m4" onclick="event.stopPropagation(); checkModule('m4')">
-          <span class="item-title">4. Check BTC Funding Rate</span>
-          <span class="item-step">coinglass.com/FundingRate</span>
-          <span class="expand-btn" id="exp-m4">▼</span>
-        </div>
-        <div class="item-body collapsed" id="body-m4">
-          <b>What to do:</b> Go to <span class="tool-link">coinglass.com/FundingRate</span> → find BTC row. Also visible on Bybit BTCUSDT Perp page top-left.<br><br>
-          <b>Bybit charges funding every 8 hours at: 07:00, 15:00, and 23:00 TH.</b><br><br>
-          — <b>Positive</b> = Longs paying Shorts. Market crowded long → bullish momentum may slow. Good for short call sellers.<br>
-          — <b>Negative</b> = Shorts paying Longs. Risk of short squeeze (rapid BTC spike). Dangerous.<br><br>
-          <div class="formula-box">Funding &gt; +0.03%           → Excellent — longs crowded
+<!-- CAN EDIT: item-body content, labels, rule-row text  -->
+<!-- DO NOT EDIT: id="item-m4", id="cb-m4", id="skip-m4", data-skip="true" on skip checkbox -->
+<div class="checklist-item" id="item-m4">
+  <div class="item-header" onclick="toggleModule('m4')">
+    <input type="checkbox" id="cb-m4" onclick="event.stopPropagation(); checkModule('m4')">
+    <span class="item-title">4. Check BTC Funding Rate</span>
+    <span class="item-step">coinglass.com/FundingRate</span>
+    <span class="expand-btn" id="exp-m4">▼</span>
+  </div>
+  <div class="item-body collapsed" id="body-m4">
+    <b>What to do:</b> Go to <span class="tool-link">coinglass.com/FundingRate</span> → find BTC row. Also visible on Bybit BTCUSDT Perp page top-left.<br><br>
+    <b>Bybit charges funding every 8 hours at: 07:00, 15:00, and 23:00 TH.</b><br><br>
+    — <b>Positive</b> = Longs paying Shorts. Market crowded long → bullish momentum may slow. Good for short call sellers.<br>
+    — <b>Negative</b> = Shorts paying Longs. Risk of short squeeze (rapid BTC spike). Dangerous.<br><br>
+    <div class="formula-box">Funding &gt; +0.03%           → Excellent — longs crowded
 Funding +0.005% to +0.01%   → Good — normal
 Funding −0.001% to +0.005%  → Neutral
 Funding −0.01% to −0.005%   → Caution — move strike up 1 step
 Funding &lt; −0.03%           → SKIP</div>
-          <div class="rule-row"><span class="arrow">→</span><span>Funding neutral to positive:</span> <span class="tag tag-go">Proceed</span></div>
-          <div class="rule-row"><span class="arrow">→</span><span>Funding −0.01% to −0.005%:</span> <span class="tag tag-warn">Move strike up 1 step</span></div>
-          <div class="rule-row"><span class="arrow">→</span><span>Funding &lt; −0.03%:</span> <span class="tag tag-stop">SKIP — tick below</span></div>
-          <div class="auto-result">
-            <div class="auto-label">🤖 Automation result</div>
-            <div class="auto-value" id="auto-m4">— not yet automated —</div>
-          </div>
-          <div class="skip-trigger">
-            <input type="checkbox" id="skip-m4" data-skip="true" onchange="updateProgress()">
-            <label for="skip-m4">⛔ Tick this if funding &lt; −0.03% → SKIP TRADE</label>
-          </div>
-        </div>
-      </div>
-      <!-- //////////  END MODULE 4  ////////// -->
+    <div class="rule-row"><span class="arrow">→</span><span>Funding neutral to positive:</span> <span class="tag tag-go">Proceed</span></div>
+    <div class="rule-row"><span class="arrow">→</span><span>Funding −0.01% to −0.005%:</span> <span class="tag tag-warn">Move strike up 1 step</span></div>
+    <div class="rule-row"><span class="arrow">→</span><span>Funding &lt; −0.03%:</span> <span class="tag tag-stop">SKIP — tick below</span></div>
+    <div class="auto-result">
+      <div class="auto-label">🤖 Automation result</div>
+      <div class="auto-value" id="auto-m4">⏳ Fetching funding rate…</div>
+    </div>
+    <div class="skip-trigger">
+      <input type="checkbox" id="skip-m4" data-skip="true" onchange="updateProgress()">
+      <label for="skip-m4">⛔ Tick this if funding &lt; −0.03% → SKIP TRADE</label>
+    </div>
+  </div>
+</div>
+<!-- //////////  END MODULE 4  ////////// -->
+
+<script>
+(async function autoCheckM4() {
+  const el = document.getElementById('auto-m4');
+  try {
+    const res  = await fetch('https://api.bybit.com/v5/market/tickers?category=linear&symbol=BTCUSDT');
+    const data = await res.json();
+    const rate = parseFloat(data.result.list[0].fundingRate) * 100;
+    const rateStr = (rate >= 0 ? '+' : '') + rate.toFixed(4) + '%';
+
+    let verdict, doSkip = false, doCheck = false;
+
+    if (rate > 0.03) {
+      verdict = '✅ ' + rateStr + ' — Excellent. Longs crowded. Proceed.';
+      doCheck = true;
+    } else if (rate >= 0.005) {
+      verdict = '✅ ' + rateStr + ' — Good / normal. Proceed.';
+      doCheck = true;
+    } else if (rate >= -0.001) {
+      verdict = '🟡 ' + rateStr + ' — Neutral. Proceed.';
+      doCheck = true;
+    } else if (rate >= -0.01) {
+      verdict = '⚠️ ' + rateStr + ' — Caution. Move strike up 1 step.';
+      doCheck = true;
+    } else if (rate >= -0.03) {
+      verdict = '⚠️ ' + rateStr + ' — Caution zone. Monitor closely.';
+      doCheck = true;
+    } else {
+      verdict = '⛔ ' + rateStr + ' — SKIP. Funding deeply negative.';
+      doSkip = true;
+    }
+
+    el.textContent = verdict;
+
+    if (doSkip) {
+      const skipBox = document.getElementById('skip-m4');
+      skipBox.checked = true;
+      skipBox.dispatchEvent(new Event('change'));
+    }
+
+    if (doCheck) {
+      const cb = document.getElementById('cb-m4');
+      if (!cb.checked) {
+        cb.checked = true;
+        checkModule('m4');
+      }
+    }
+
+    updateProgress();
+
+  } catch (err) {
+    el.textContent = '❌ Fetch failed — check manually at coinglass.com/FundingRate';
+  }
+})();
+</script>
 
 
       <!-- //////////  MODULE 5 — BTC YESTERDAY RALLY  ////////// -->
