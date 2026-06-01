@@ -1,4 +1,4 @@
-name: Macro Calendar Check
+name: module1_macro calendar check
 
 on:
   schedule:
