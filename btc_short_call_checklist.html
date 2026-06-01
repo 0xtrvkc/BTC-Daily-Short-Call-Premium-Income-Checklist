@@ -1,0 +1,1104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BTC Daily Short Call Checklist</title>
+<link rel="stylesheet" href="https://jdan.github.io/98.css/style.css">
+
+<!-- ============================================================
+  STYLES — DO NOT EDIT
+  Core visual engine. Changing these breaks layout and tags.
+  If you need custom styles, add them in the USER STYLES block below.
+============================================================ -->
+<style>
+  body {
+    zoom: 1.3;
+    background: #008080;
+    font-family: 'MS Sans Serif', Arial, sans-serif;
+    font-size: 11px;
+    padding: 16px;
+    min-height: 100vh;
+  }
+  .main-window { max-width: 780px; margin: 0 auto; }
+  .window { margin-bottom: 12px; }
+  .window-body { padding: 12px 16px; }
+  .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-bottom: 4px; }
+  .stat-box { background: #c0c0c0; border: 2px inset #888; padding: 6px 8px; text-align: center; }
+  .stat-label { font-size: 10px; color: #444; margin-bottom: 2px; }
+  .stat-val { font-size: 15px; font-weight: bold; color: #000080; }
+  .progress-container { margin: 8px 0 4px; }
+  .progress-bar-outer { border: 2px inset #888; height: 16px; background: #fff; position: relative; overflow: hidden; }
+  .progress-bar-inner { height: 100%; background: #000080; width: 0%; transition: width 0.3s; }
+  .progress-label { position: absolute; top: 0; left: 0; right: 0; bottom: 0; display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: bold; color: #000; }
+  .checklist-item { border: 1px solid #888; margin-bottom: 8px; background: #fff; }
+  .item-header { display: flex; align-items: flex-start; gap: 8px; padding: 8px 10px; cursor: pointer; background: #d4d0c8; border-bottom: 1px solid #888; user-select: none; }
+  .item-header:hover { background: #e0ddd5; }
+  .item-header input[type="checkbox"] { margin-top: 1px; cursor: pointer; flex-shrink: 0; }
+  .item-title { font-weight: bold; font-size: 11px; flex: 1; }
+  .item-step { color: #808080; font-size: 10px; flex-shrink: 0; }
+  .item-body { padding: 10px 12px; font-size: 11px; line-height: 1.7; }
+  .item-body.collapsed { display: none; }
+  .skip-trigger { margin-top: 10px; padding: 7px 10px; background: #fff0f0; border: 1px solid #cc0000; display: flex; align-items: center; gap: 8px; }
+  .skip-trigger label { cursor: pointer; font-weight: bold; color: #880000; }
+  .auto-result { margin-top: 10px; padding: 7px 10px; background: #f0f4ff; border: 1px solid #000080; font-size: 10px; }
+  .auto-result .auto-label { font-weight: bold; color: #000080; margin-bottom: 4px; }
+  .auto-result .auto-value { font-family: 'Courier New', monospace; color: #222; }
+  .rule-row { display: flex; gap: 6px; align-items: flex-start; margin: 3px 0; }
+  .rule-row .arrow { flex-shrink: 0; font-weight: bold; }
+  .tag { display: inline-block; padding: 1px 7px; font-size: 10px; font-weight: bold; border: 1px solid; margin: 1px 2px; }
+  .tag-go   { background: #00aa00; color: #fff; border-color: #006600; }
+  .tag-stop { background: #cc0000; color: #fff; border-color: #880000; }
+  .tag-warn { background: #cc8800; color: #fff; border-color: #885500; }
+  .tag-info { background: #000080; color: #fff; border-color: #000055; }
+  .checked-item .item-header { background: #b0c8b0; }
+  .checked-item .item-title { text-decoration: line-through; color: #555; }
+  .skip-alert, .go-alert { margin-top: 8px; padding: 8px 12px; font-weight: bold; display: none; }
+  .skip-alert { background: #ffcccc; border: 2px solid #cc0000; color: #880000; }
+  .go-alert   { background: #ccffcc; border: 2px solid #006600; color: #004400; }
+  .skip-alert.visible, .go-alert.visible { display: block; }
+  .expand-btn { float: right; font-size: 9px; cursor: pointer; background: #c0c0c0; border: 1px outset #fff; padding: 0 4px; line-height: 14px; }
+  .formula-box { background: #ffffc0; border: 1px solid #888; padding: 6px 10px; margin: 6px 0; font-family: 'Courier New', monospace; font-size: 10px; white-space: pre; }
+  .tool-link { color: #000080; font-weight: bold; }
+  .note { color: #555; font-style: italic; font-size: 10px; margin-top: 4px; }
+  .title-bar-text { font-size: 12px; }
+  .sticky-note { position: fixed; top: 16px; right: 16px; width: 210px; z-index: 999; font-size: 10px; box-shadow: 3px 3px 0 #000; }
+  .sticky-note .title-bar { cursor: move; }
+  .sticky-note .title-bar-text { font-size: 10px; }
+  .sticky-note table { width: 100%; border-collapse: collapse; background: #fff; }
+  .sticky-note th { background: #000080; color: #fff; padding: 3px 6px; text-align: left; font-size: 10px; font-weight: bold; }
+  .sticky-note td { padding: 4px 6px; border-bottom: 1px solid #d4d0c8; vertical-align: top; line-height: 1.5; }
+  .sticky-note tr:last-child td { border-bottom: none; }
+  .sticky-note .time-col { color: #000080; font-weight: bold; white-space: nowrap; width: 70px; }
+  .sticky-note .action-col { color: #222; }
+  .sticky-note tr.now { background: #ffffc0; }
+  .sticky-note .dot-go   { color: #006600; font-weight: bold; }
+  .sticky-note .dot-warn { color: #cc8800; font-weight: bold; }
+  .sticky-note .dot-stop { color: #cc0000; font-weight: bold; }
+</style>
+
+<!-- ============================================================
+  USER STYLES — CAN EDIT
+  Add your own CSS overrides here without touching the block above.
+  Example: change background, font size, highlight colors, etc.
+============================================================ -->
+<style>
+  /* your custom overrides here */
+</style>
+
+</head>
+<body>
+
+<!-- ============================================================
+  STICKY SCHEDULE NOTE — CAN EDIT label text only
+  Do NOT rename row IDs (row-checks, row-entry, etc.)
+  The JS timer highlights rows by ID — renaming breaks highlighting.
+============================================================ -->
+<div class="sticky-note window" id="sticky">
+  <div class="title-bar" id="sticky-drag">
+    <div class="title-bar-text">⏱ Daily Schedule (TH)</div>
+    <div class="title-bar-controls">
+      <button aria-label="Minimize" onclick="toggleSticky()"></button>
+    </div>
+  </div>
+  <table id="sticky-table">
+    <thead>
+      <tr><th>Time (TH)</th><th>Action</th></tr>
+    </thead>
+    <tbody>
+      <tr id="row-checks">
+        <td class="time-col">Before 07:00</td>
+        <td class="action-col"><span class="dot-go">●</span> Run all pre-trade checks (Parts A &amp; B)</td>
+      </tr>
+      <tr id="row-entry">
+        <td class="time-col">07:00–09:00</td>
+        <td class="action-col"><span class="dot-go">●</span> Enter trade · Set SL immediately</td>
+      </tr>
+      <tr id="row-funding1">
+        <td class="time-col">07:00</td>
+        <td class="action-col"><span class="dot-warn">●</span> Bybit funding charged</td>
+      </tr>
+      <tr id="row-midday">
+        <td class="time-col">~12:00</td>
+        <td class="action-col"><span class="dot-warn">●</span> Optional check · Early close if 50–70% profit</td>
+      </tr>
+      <tr id="row-pinrisk">
+        <td class="time-col">13:30</td>
+        <td class="action-col"><span class="dot-stop">●</span> PIN RISK EXIT — close all positions now</td>
+      </tr>
+      <tr id="row-twap">
+        <td class="time-col">14:30–15:00</td>
+        <td class="action-col"><span class="dot-warn">●</span> TWAP window · Settlement price forming</td>
+      </tr>
+      <tr id="row-settle">
+        <td class="time-col">15:00</td>
+        <td class="action-col"><span class="dot-stop">●</span> Settlement (passive — just monitor)<br><span style="color:#555;font-size:9px;">+ Bybit funding charged · No action needed</span></td>
+      </tr>
+      <tr id="row-funding2" style="display:none"></tr>
+      <tr id="row-funding3">
+        <td class="time-col">23:00</td>
+        <td class="action-col"><span class="dot-warn">●</span> Bybit funding charged</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+<!-- END STICKY SCHEDULE NOTE -->
+
+
+<div class="main-window">
+
+  <!-- ============================================================
+    HEADER & PROGRESS BAR — DO NOT EDIT
+    Stats are hardcoded from the playbook.
+    Progress bar is driven by JS — do not change element IDs:
+    #progress-fill, #progress-label, #skip-alert, #go-alert
+  ============================================================ -->
+  <div class="window">
+    <div class="title-bar">
+      <div class="title-bar-text">📈 BTC Daily Short Call — Premium Income Checklist</div>
+      <div class="title-bar-controls">
+        <button aria-label="Minimize"></button>
+        <button aria-label="Maximize"></button>
+        <button aria-label="Close"></button>
+      </div>
+    </div>
+    <div class="window-body">
+      <div class="stats-grid">
+        <div class="stat-box"><div class="stat-label">Win Rate (with SL)</div><div class="stat-val">92.8%</div></div>
+        <div class="stat-box"><div class="stat-label">Target Delta</div><div class="stat-val">0.13–0.15</div></div>
+        <div class="stat-box"><div class="stat-label">Stop-Loss Rule</div><div class="stat-val">RR 1:2</div></div>
+        <div class="stat-box"><div class="stat-label">Target Income</div><div class="stat-val">$20/day</div></div>
+      </div>
+      <div class="progress-container">
+        <div style="font-size:10px; margin-bottom:3px;">Overall progress</div>
+        <div class="progress-bar-outer">
+          <div class="progress-bar-inner" id="progress-fill"></div>
+          <div class="progress-label" id="progress-label">0 / 16 complete</div>
+        </div>
+      </div>
+      <div id="skip-alert" class="skip-alert">⛔ SKIP TODAY — A hard no-trade condition was triggered. Do not open a position.</div>
+      <div id="go-alert" class="go-alert">✅ ALL CHECKS PASSED — Setup is valid. Enter within your position size limit.</div>
+    </div>
+  </div>
+  <!-- END HEADER -->
+
+
+  <!-- ============================================================
+    PART A — PRE-TRADE CHECKS
+  ============================================================ -->
+  <div class="window">
+    <div class="title-bar"><div class="title-bar-text">Part A — Pre-Trade Checks (Complete before entry)</div></div>
+    <div class="window-body" style="padding:10px 14px;">
+
+
+      <!-- //////////  MODULE 1 — MACRO CALENDAR  ////////// -->
+      <!-- CAN EDIT: item-body content, labels, rule-row text  -->
+      <!-- DO NOT EDIT: id="item-m1", id="cb-m1", id="skip-m1", data-skip="true" on skip checkbox -->
+      <div class="checklist-item" id="item-m1">
+        <div class="item-header" onclick="toggleModule('m1')">
+          <input type="checkbox" id="cb-m1" onclick="event.stopPropagation(); checkModule('m1')">
+          <span class="item-title">1. Check Macro Calendar on ForexFactory</span>
+          <span class="item-step">forexfactory.com</span>
+          <span class="expand-btn" id="exp-m1">▼</span>
+        </div>
+        <div class="item-body collapsed" id="body-m1">
+          <b>What to do:</b> Go to <span class="tool-link">forexfactory.com</span> → look at today's calendar → look for HIGH impact events (red folder icon) involving USD: FOMC, CPI, NFP, Fed Chair Speech.<br><br>
+          <b>Why it matters:</b> On these days BTC can move 3–5% in under 1 hour. Your short call strike at +2% will get blown through. The $30–$90 premium you collect is not worth a $300–$500 loss.<br><br>
+          <div class="rule-row"><span class="arrow">→</span><span>Calendar clear or only low/medium impact events:</span> <span class="tag tag-go">PROCEED</span></div>
+          <div class="rule-row"><span class="arrow">→</span><span>FOMC / CPI / NFP / Fed Chair Speech today:</span> <span class="tag tag-stop">SKIP — tick below</span></div>
+          <!-- AUTOMATION HOOK: replace the div below with your automated result.
+               Set auto-value text to what your script found.
+               If a skip condition is met, also check #skip-m1 via JS: document.getElementById('skip-m1').checked = true; updateProgress(); -->
+          <div class="auto-result">
+            <div class="auto-label">🤖 Automation result</div>
+            <div class="auto-value" id="auto-m1">— not yet automated —</div>
+          </div>
+          <div class="skip-trigger">
+            <input type="checkbox" id="skip-m1" data-skip="true" onchange="updateProgress()">
+            <label for="skip-m1">⛔ Tick this if you found FOMC / CPI / NFP / Fed Speech today → SKIP TRADE</label>
+          </div>
+        </div>
+      </div>
+      <!-- //////////  END MODULE 1  ////////// -->
+
+
+      <!-- //////////  MODULE 2 — IV vs HV RATIO  ////////// -->
+      <!-- CAN EDIT: item-body content, labels, rule-row text  -->
+      <!-- DO NOT EDIT: id="item-m2", id="cb-m2", id="skip-m2", data-skip="true" on skip checkbox -->
+      <div class="checklist-item" id="item-m2">
+        <div class="item-header" onclick="toggleModule('m2')">
+          <input type="checkbox" id="cb-m2" onclick="event.stopPropagation(); checkModule('m2')">
+          <span class="item-title">2. Calculate IV/HV Ratio (v2: HV30, ratio ≥ 1.15)</span>
+          <span class="item-step">coinglass.com/options/Bybit + TradingView</span>
+          <span class="expand-btn" id="exp-m2">▼</span>
+        </div>
+        <div class="item-body collapsed" id="body-m2">
+          <b>What to do:</b> Get IV from Bybit option chain (% column next to each strike). Get HV30 from TradingView → add indicator "Historical Volatility" length <b>30</b>. Then calculate the ratio.<br><br>
+          — <b>IV (Implied Volatility)</b> = what the market <i>fears</i> BTC will do. Baked into option price.<br>
+          — <b>HV30 (Historical Volatility, 30-day)</b> = what BTC <i>actually did</i> over the past 30 days.<br>
+          — The ratio tells you how much the market is overpaying vs reality. That overpayment = your edge.<br><br>
+          <div class="formula-box">IV/HV Ratio = IV ÷ HV30
+
+Example: IV = 31%, HV30 = 19.55% → Ratio = 31/19.55 = 1.59 ✅ Sweet spot
+
+Ratio &lt; 1.00  → SKIP — selling cheap, no edge at all
+Ratio 1.00–1.15 → Borderline — edge too small, be careful
+Ratio 1.15–1.50 → OK — normal edge, proceed
+Ratio &gt; 1.50  → Sweet Spot — strong edge, vol spike opportunity</div>
+          <div class="rule-row"><span class="arrow">→</span><span>Ratio ≥ 1.50:</span> <span class="tag tag-go">Sweet spot — maximum edge</span></div>
+          <div class="rule-row"><span class="arrow">→</span><span>Ratio 1.15–1.50:</span> <span class="tag tag-go">OK — proceed normally</span></div>
+          <div class="rule-row"><span class="arrow">→</span><span>Ratio 1.00–1.15:</span> <span class="tag tag-warn">Borderline — reduce size, extra caution</span></div>
+          <div class="rule-row"><span class="arrow">→</span><span>Ratio &lt; 1.00 (IV &lt; HV):</span> <span class="tag tag-stop">SKIP — no edge, tick below</span></div>
+          <div class="note">v2 change: use HV30 (not HV7) and check the ratio, not just the gap. Hard skip threshold is ratio &lt; 1.15.</div>
+          <div class="auto-result">
+            <div class="auto-label">🤖 Automation result</div>
+            <div class="auto-value" id="auto-m2">— not yet automated —</div>
+          </div>
+          <div class="skip-trigger">
+            <input type="checkbox" id="skip-m2" data-skip="true" onchange="updateProgress()">
+            <label for="skip-m2">⛔ Tick this if IV/HV ratio &lt; 1.15 → SKIP TRADE</label>
+          </div>
+        </div>
+      </div>
+      <!-- //////////  END MODULE 2  ////////// -->
+
+
+      <!-- //////////  MODULE 3 — ATM STRADDLE  ////////// -->
+      <!-- CAN EDIT: item-body content, labels, rule-row text  -->
+      <!-- DO NOT EDIT: id="item-m3", id="cb-m3" — no skip trigger on this one (informational only) -->
+      <div class="checklist-item" id="item-m3">
+        <div class="item-header" onclick="toggleModule('m3')">
+          <input type="checkbox" id="cb-m3" onclick="event.stopPropagation(); checkModule('m3')">
+          <span class="item-title">3. Calculate ATM Straddle — Today's Expected Range</span>
+          <span class="item-step">Bybit Option Chain</span>
+          <span class="expand-btn" id="exp-m3">▼</span>
+        </div>
+        <div class="item-body collapsed" id="body-m3">
+          <b>What to do:</b> Open Bybit option chain for today's expiry → ATM strike closest to spot → note Call price AND Put price → add them.<br><br>
+          <div class="formula-box">ATM Call + ATM Put = Expected Move (Straddle)
+
+BTC = $74,890 | Call(75K) = $305 | Put(75K) = $295
+Straddle = $600 → Range: $74,290 – $75,490</div>
+          Your strike (from Part B) should sit <i>above</i> the top of this range.<br><br>
+          <div class="rule-row"><span class="arrow">→</span><span>Strike above (Spot + Straddle top):</span> <span class="tag tag-go">Good buffer</span></div>
+          <div class="rule-row"><span class="arrow">→</span><span>Strike inside expected range:</span> <span class="tag tag-warn">Consider moving strike higher in Part B</span></div>
+          <div class="auto-result">
+            <div class="auto-label">🤖 Automation result</div>
+            <div class="auto-value" id="auto-m3">— not yet automated —</div>
+          </div>
+          <div class="note">Informational only — no skip trigger. Use it to calibrate strike selection.</div>
+        </div>
+      </div>
+      <!-- //////////  END MODULE 3  ////////// -->
+
+
+      <!-- //////////  MODULE 4 — FUNDING RATE  ////////// -->
+      <!-- CAN EDIT: item-body content, labels, rule-row text  -->
+      <!-- DO NOT EDIT: id="item-m4", id="cb-m4", id="skip-m4", data-skip="true" on skip checkbox -->
+      <div class="checklist-item" id="item-m4">
+        <div class="item-header" onclick="toggleModule('m4')">
+          <input type="checkbox" id="cb-m4" onclick="event.stopPropagation(); checkModule('m4')">
+          <span class="item-title">4. Check BTC Funding Rate</span>
+          <span class="item-step">coinglass.com/FundingRate</span>
+          <span class="expand-btn" id="exp-m4">▼</span>
+        </div>
+        <div class="item-body collapsed" id="body-m4">
+          <b>What to do:</b> Go to <span class="tool-link">coinglass.com/FundingRate</span> → find BTC row. Also visible on Bybit BTCUSDT Perp page top-left.<br><br>
+          <b>Bybit charges funding every 8 hours at: 07:00, 15:00, and 23:00 TH.</b><br><br>
+          — <b>Positive</b> = Longs paying Shorts. Market crowded long → bullish momentum may slow. Good for short call sellers.<br>
+          — <b>Negative</b> = Shorts paying Longs. Risk of short squeeze (rapid BTC spike). Dangerous.<br><br>
+          <div class="formula-box">Funding &gt; +0.03%           → Excellent — longs crowded
+Funding +0.005% to +0.01%   → Good — normal
+Funding −0.001% to +0.005%  → Neutral
+Funding −0.01% to −0.005%   → Caution — move strike up 1 step
+Funding &lt; −0.03%           → SKIP</div>
+          <div class="rule-row"><span class="arrow">→</span><span>Funding neutral to positive:</span> <span class="tag tag-go">Proceed</span></div>
+          <div class="rule-row"><span class="arrow">→</span><span>Funding −0.01% to −0.005%:</span> <span class="tag tag-warn">Move strike up 1 step</span></div>
+          <div class="rule-row"><span class="arrow">→</span><span>Funding &lt; −0.03%:</span> <span class="tag tag-stop">SKIP — tick below</span></div>
+          <div class="auto-result">
+            <div class="auto-label">🤖 Automation result</div>
+            <div class="auto-value" id="auto-m4">— not yet automated —</div>
+          </div>
+          <div class="skip-trigger">
+            <input type="checkbox" id="skip-m4" data-skip="true" onchange="updateProgress()">
+            <label for="skip-m4">⛔ Tick this if funding &lt; −0.03% → SKIP TRADE</label>
+          </div>
+        </div>
+      </div>
+      <!-- //////////  END MODULE 4  ////////// -->
+
+
+      <!-- //////////  MODULE 5 — BTC YESTERDAY RALLY  ////////// -->
+      <!-- CAN EDIT: item-body content, labels, rule-row text  -->
+      <!-- DO NOT EDIT: id="item-m5", id="cb-m5", id="skip-m5", data-skip="true" on skip checkbox -->
+      <div class="checklist-item" id="item-m5">
+        <div class="item-header" onclick="toggleModule('m5')">
+          <input type="checkbox" id="cb-m5" onclick="event.stopPropagation(); checkModule('m5')">
+          <span class="item-title">5. Did BTC Rally +5% or More Yesterday?</span>
+          <span class="item-step">TradingView Daily Chart</span>
+          <span class="expand-btn" id="exp-m5">▼</span>
+        </div>
+        <div class="item-body collapsed" id="body-m5">
+          <b>What to do:</b> TradingView → BTC/USDT → 1D chart → yesterday's candle.<br><br>
+          <div class="formula-box">Move % = (Close − Open) / Open × 100
+
+Open $70,000 → Close $73,500 → Move = +5.0% → SKIP</div>
+          When BTC has a big green day (+5%), momentum often carries into the next session.<br><br>
+          <div class="note">⚠️ Also check current intraday move — if BTC is already up +5% today before entry, same rule applies.</div>
+          <div class="rule-row"><span class="arrow">→</span><span>Yesterday's move &lt; +5%:</span> <span class="tag tag-go">Normal — proceed</span></div>
+          <div class="rule-row"><span class="arrow">→</span><span>Yesterday's move ≥ +5%:</span> <span class="tag tag-stop">SKIP — tick below</span></div>
+          <div class="auto-result">
+            <div class="auto-label">🤖 Automation result</div>
+            <div class="auto-value" id="auto-m5">— not yet automated —</div>
+          </div>
+          <div class="skip-trigger">
+            <input type="checkbox" id="skip-m5" data-skip="true" onchange="updateProgress()">
+            <label for="skip-m5">⛔ Tick this if BTC rallied +5%+ yesterday or today pre-entry → SKIP TRADE</label>
+          </div>
+        </div>
+      </div>
+      <!-- //////////  END MODULE 5  ////////// -->
+
+
+      <!-- //////////  MODULE 6 — LIQUIDATION CASCADE  ////////// -->
+      <!-- CAN EDIT: item-body content, labels, rule-row text  -->
+      <!-- DO NOT EDIT: id="item-m6", id="cb-m6", id="skip-m6", data-skip="true" on skip checkbox -->
+      <div class="checklist-item" id="item-m6">
+        <div class="item-header" onclick="toggleModule('m6')">
+          <input type="checkbox" id="cb-m6" onclick="event.stopPropagation(); checkModule('m6')">
+          <span class="item-title">6. Scan for Active Liquidation Cascade</span>
+          <span class="item-step">coinglass.com/LiquidationData</span>
+          <span class="expand-btn" id="exp-m6">▼</span>
+        </div>
+        <div class="item-body collapsed" id="body-m6">
+          <b>What to do:</b> Check <span class="tool-link">coinglass.com/LiquidationData</span> → BTC liquidation bars for last 1–4 hours. Also check Bybit OI on TradingView (symbol: BTCUSDTPERP.OI) for sudden vertical drops.<br><br>
+          <b>What a cascade looks like:</b><br>
+          — Liquidation bar 10×–50× larger than surrounding bars in last 1–2 hours.<br>
+          — OI drops sharply and suddenly.<br>
+          — BTC price spikes 2–4% in minutes with no news reason.<br><br>
+          <div class="formula-box">Normal:  small, even bars on CoinGlass chart
+Cascade: one giant bar 10x+ surrounding bars
+         + OI dropping sharply
+         + BTC price spiking erratically</div>
+          <div class="note">⚠️ Real-time check — do this immediately before clicking Sell, not just at 06:00 TH.</div>
+          <div class="rule-row"><span class="arrow">→</span><span>Liquidation bars normal, OI stable:</span> <span class="tag tag-go">No cascade — proceed</span></div>
+          <div class="rule-row"><span class="arrow">→</span><span>Abnormal spike in last 1–2 hours:</span> <span class="tag tag-warn">Wait 30–60 min, re-check before entering</span></div>
+          <div class="rule-row"><span class="arrow">→</span><span>Cascade actively happening now:</span> <span class="tag tag-stop">SKIP — tick below</span></div>
+          <div class="auto-result">
+            <div class="auto-label">🤖 Automation result</div>
+            <div class="auto-value" id="auto-m6">— not yet automated —</div>
+          </div>
+          <div class="skip-trigger">
+            <input type="checkbox" id="skip-m6" data-skip="true" onchange="updateProgress()">
+            <label for="skip-m6">⛔ Tick this if active liquidation cascade detected right now → SKIP TRADE</label>
+          </div>
+        </div>
+      </div>
+      <!-- //////////  END MODULE 6  ////////// -->
+
+
+      <!-- //////////  MODULE 6B — LIQUIDATION TIERS (24H TOTAL)  ////////// -->
+      <!-- CAN EDIT: item-body content, labels, rule-row text  -->
+      <!-- DO NOT EDIT: id="item-m6b", id="cb-m6b", id="skip-m6b", data-skip="true" on skip checkbox -->
+      <!-- NOTE: Module 6 checks real-time cascade. This module checks the 24h total from CoinGlass
+           Derivatives row — a different signal. Both must pass. -->
+      <div class="checklist-item" id="item-m6b">
+        <div class="item-header" onclick="toggleModule('m6b')">
+          <input type="checkbox" id="cb-m6b" onclick="event.stopPropagation(); checkModule('m6b')">
+          <span class="item-title">7. Check Liquidation 24h Total — CoinGlass Derivatives Row</span>
+          <span class="item-step">coinglass.com → Derivatives → BTC row</span>
+          <span class="expand-btn" id="exp-m6b">▼</span>
+        </div>
+        <div class="item-body collapsed" id="body-m6b">
+          <b>What to do:</b> Go to <span class="tool-link">coinglass.com</span> → tab "Derivatives" → find BTC row → read the "Liquidation 24h" column. This is a different check from Module 6 — that one looked at real-time spikes. This one looks at the 24h total to determine the current market regime.<br><br>
+          <b>Why it matters:</b> Liquidation 24h is the single most important override signal in v2. It tells you whether the market is calm enough to trade. Even if every other check passes — if this number is too high, you skip. No exceptions.<br><br>
+          <div class="formula-box">Liquidation 24h Tiers — v2 Framework:
+
+&lt; $50M      → Safe Zone    ✅ Trade normally, full size
+$50–$150M   → Borderline   ⚠️ Caution: reduce size 30-50%, widen strike
+$150–$200M  → Pre-Cascade  ⛔ SKIP — stress event in progress, wave 2 risk
+&gt; $200M     → CASCADE      ⛔ HARD SKIP — wait until drops back below $50M
+
+Real example from playbook:
+18 May: $255M → SKIP ✓ (BTC continued down)
+19 May: $377M → SKIP ✓ (cascade continued)
+22 May: $45M  → TRADE ✓ (won, BTC settled below strike)</div>
+          <div class="rule-row"><span class="arrow">→</span><span>Liquidation 24h &lt; $50M:</span> <span class="tag tag-go">Safe Zone — proceed at full size</span></div>
+          <div class="rule-row"><span class="arrow">→</span><span>Liquidation 24h $50M–$150M:</span> <span class="tag tag-warn">Caution — reduce size, use wider strike (2+ SD)</span></div>
+          <div class="rule-row"><span class="arrow">→</span><span>Liquidation 24h $150M–$200M:</span> <span class="tag tag-stop">Pre-cascade — SKIP, tick below</span></div>
+          <div class="rule-row"><span class="arrow">→</span><span>Liquidation 24h &gt; $200M:</span> <span class="tag tag-stop">CASCADE — hard SKIP always, tick below</span></div>
+          <div class="note">This is the single rule that overrides everything else. If Liquidation &gt; $200M, no setup is good enough.</div>
+          <div class="auto-result">
+            <div class="auto-label">🤖 Automation result</div>
+            <div class="auto-value" id="auto-m6b">— not yet automated —</div>
+          </div>
+          <div class="skip-trigger">
+            <input type="checkbox" id="skip-m6b" data-skip="true" onchange="updateProgress()">
+            <label for="skip-m6b">⛔ Tick this if Liquidation 24h ≥ $150M → SKIP TRADE</label>
+          </div>
+        </div>
+      </div>
+      <!-- //////////  END MODULE 6B  ////////// -->
+
+
+      <!-- //////////  MODULE 6C — COMBINATION READ  ////////// -->
+      <!-- CAN EDIT: item-body content, labels, rule-row text  -->
+      <!-- DO NOT EDIT: id="item-m6c", id="cb-m6c", id="skip-m6c", data-skip="true" on skip checkbox -->
+      <!-- NOTE: This is a v2 addition. Read Price + Volume + OI + Liquidation TOGETHER from
+           the CoinGlass Derivatives row. One number alone means nothing. -->
+      <div class="checklist-item" id="item-m6c">
+        <div class="item-header" onclick="toggleModule('m6c')">
+          <input type="checkbox" id="cb-m6c" onclick="event.stopPropagation(); checkModule('m6c')">
+          <span class="item-title">8. Combination Read — Price + Volume + OI + Liquidation</span>
+          <span class="item-step">CoinGlass Derivatives BTC row</span>
+          <span class="expand-btn" id="exp-m6c">▼</span>
+        </div>
+        <div class="item-body collapsed" id="body-m6c">
+          <b>What to do:</b> From the same CoinGlass Derivatives BTC row, read these 4 columns together: Price 24h%, Volume 24h%, OI 24h%, Liquidation 24h. Match the combination to one of the 4 patterns below.<br><br>
+          <b>Why together:</b> Each metric alone is misleading. A good funding rate + good IV/HV still means SKIP if the combination pattern says danger. This is the rule that most standard checklists miss — and what saved the playbook on Day 18.<br><br>
+          <div class="formula-box">Pattern 1 — Bullish Accumulation (Short Put aligned, Short Call risky)
+Price ↑ + Volume ↑ + OI ↑ = New longs entering, trend strengthening
+→ Short Call: RISKY  |  Short Put: consider (aligned with trend)
+
+Pattern 2 — Long Capitulation (SKIP everything)
+Price ↓ + Volume ↑↑ + OI ↓ + Liquidation &gt; $200M = Cascade / forced selling
+→ Bounce risk in ANY direction in next 12–24h. SKIP all trades.
+
+Pattern 3 — New Shorts Piling (Short Call aligned, Short Put risky)
+Price ↓ + Volume ↑ + OI ↑ = New shorts entering, bearish conviction
+→ Short Call: OK (aligned)  |  Short Put: SKIP (against momentum)
+
+Pattern 4 — Quiet Deleveraging (Either side OK)
+Price flat + Volume ↓ + OI ↓ + Liquidation ↓ = Market calming, regime normal
+→ Short Call or Put: OK — choose based on macro view</div>
+          <div class="rule-row"><span class="arrow">→</span><span>Pattern 4 (Quiet):</span> <span class="tag tag-go">Best condition — trade either side</span></div>
+          <div class="rule-row"><span class="arrow">→</span><span>Pattern 3 (New Shorts) + you're selling Call:</span> <span class="tag tag-go">Aligned — proceed</span></div>
+          <div class="rule-row"><span class="arrow">→</span><span>Pattern 1 (Bullish) + you're selling Call:</span> <span class="tag tag-warn">Against momentum — reduce size or skip</span></div>
+          <div class="rule-row"><span class="arrow">→</span><span>Pattern 2 (Capitulation) any direction:</span> <span class="tag tag-stop">SKIP — bounce risk both ways, tick below</span></div>
+          <div class="note">Day 18 lesson: AI passed all 8 individual checks but Combination Read showed Pattern 3 (new shorts piling). Short Put would have been positioned against the crowd. SKIP was correct — BTC fell $5,700 over next 5 days.</div>
+          <div class="auto-result">
+            <div class="auto-label">🤖 Automation result</div>
+            <div class="auto-value" id="auto-m6c">— not yet automated —</div>
+          </div>
+          <div class="skip-trigger">
+            <input type="checkbox" id="skip-m6c" data-skip="true" onchange="updateProgress()">
+            <label for="skip-m6c">⛔ Tick this if Pattern 2 (Long Capitulation) detected → SKIP TRADE</label>
+          </div>
+        </div>
+      </div>
+      <!-- //////////  END MODULE 6C  ////////// -->
+
+
+      <!-- //////////  MODULE 6D — MACRO VIEW DECLARATION  ////////// -->
+      <!-- CAN EDIT: item-body content, labels, rule-row text  -->
+      <!-- DO NOT EDIT: id="item-m6d", id="cb-m6d" — no skip trigger, this is a decision step -->
+      <!-- NOTE: v2 requires declaring macro view before every trade. AI cannot know this for you. -->
+      <div class="checklist-item" id="item-m6d">
+        <div class="item-header" onclick="toggleModule('m6d')">
+          <input type="checkbox" id="cb-m6d" onclick="event.stopPropagation(); checkModule('m6d')">
+          <span class="item-title">9. Declare Your Macro View — Bearish / Bullish / Neutral</span>
+          <span class="item-step">TradingView Daily Chart</span>
+          <span class="expand-btn" id="exp-m6d">▼</span>
+        </div>
+        <div class="item-body collapsed" id="body-m6d">
+          <b>What to do:</b> Look at the BTC/USDT Daily (1D) chart on TradingView. Decide the big-picture direction right now. This decision drives which strategy you use today.<br><br>
+          <b>Why you must do this yourself:</b> AI cannot know your macro view. You must tell it every single time. If you skip this, the AI will give a generic analysis that may recommend the wrong strategy direction.<br><br>
+          <div class="formula-box">BEARISH: Lower highs + lower lows on Daily · MACD red · MA ribbon pointing down
+→ Use Short Call (aligned — you think BTC won't go up past your strike)
+
+BULLISH: Higher highs + higher lows · MACD green · MA ribbon pointing up
+→ Use Short Put (aligned — you think BTC won't fall below your strike)
+
+NEUTRAL: Sideways range · No clear trend · MACD near zero
+→ Choose based on Funding Rate:
+  Funding positive (long crowded) → Short Call
+  Funding negative (short crowded) → Short Put
+  Conflicting signals → SKIP and wait for clarity</div>
+          <div class="rule-row"><span class="arrow">→</span><span>Macro view is clear (Bearish or Bullish):</span> <span class="tag tag-go">Pick aligned strategy and proceed</span></div>
+          <div class="rule-row"><span class="arrow">→</span><span>Macro view is Neutral:</span> <span class="tag tag-info">Use funding rate to decide direction</span></div>
+          <div class="rule-row"><span class="arrow">→</span><span>Signals conflicting — can't decide:</span> <span class="tag tag-warn">SKIP — wait for clarity. Gut uncertainty = No-Trade Rule #7</span></div>
+          <div class="auto-result">
+            <div class="auto-label">🤖 Your macro view today</div>
+            <div class="auto-value" id="auto-m6d">— declare manually: BEARISH / BULLISH / NEUTRAL —</div>
+          </div>
+          <div class="note">Do NOT change your macro view during the day based on 1H momentum. Only change it when the Daily chart structure breaks (new support/resistance level broken).</div>
+        </div>
+      </div>
+      <!-- //////////  END MODULE 6D  ////////// -->
+
+
+    </div>
+  </div>
+  <!-- END PART A -->
+
+
+  <!-- ============================================================
+    PART B — STRIKE SELECTION
+  ============================================================ -->
+  <div class="window">
+    <div class="title-bar"><div class="title-bar-text">Part B — Strike Selection</div></div>
+    <div class="window-body" style="padding:10px 14px;">
+
+
+      <!-- //////////  MODULE 7 — DELTA SELECTION  ////////// -->
+      <!-- CAN EDIT: item-body content, labels, rule-row text  -->
+      <!-- DO NOT EDIT: id="item-m7", id="cb-m7" -->
+      <div class="checklist-item" id="item-m7">
+        <div class="item-header" onclick="toggleModule('m7')">
+          <input type="checkbox" id="cb-m7" onclick="event.stopPropagation(); checkModule('m7')">
+          <span class="item-title">7. Find Strike with Delta 0.13–0.15 on Bybit Option Chain</span>
+          <span class="item-step">Bybit Options</span>
+          <span class="expand-btn" id="exp-m7">▼</span>
+        </div>
+        <div class="item-body collapsed" id="body-m7">
+          <b>What to do:</b> Bybit → Options → today's daily expiry → scroll Call strikes above spot → find Delta 0.13–0.15.<br><br>
+          <div class="formula-box">Delta | Prob Win | Avg Distance | Use When
+0.30  | ~70%     | +1.1%        | Aggressive (avoid daily)
+0.20  | ~77%     | +1.7%        | Only if very confident vol is low
+0.15  | ~85%     | +2.2%        | ✅ Default sweet spot
+0.10  | ~91%     | +2.7%        | Conservative / high-IV days
+0.05  | ~96%     | +3.5%        | Ultra-safe, low premium</div>
+          <div class="rule-row"><span class="arrow">→</span><span>Found delta 0.13–0.15 strike:</span> <span class="tag tag-go">Use this strike</span></div>
+          <div class="rule-row"><span class="arrow">→</span><span>IV very high (&gt;60%):</span> <span class="tag tag-info">Use delta 0.10 — still good premium</span></div>
+          <div class="rule-row"><span class="arrow">→</span><span>Delta 0.15 strike too close to spot (low IV):</span> <span class="tag tag-warn">Reconsider — premium may not be worth risk</span></div>
+          <div class="auto-result">
+            <div class="auto-label">🤖 Automation result</div>
+            <div class="auto-value" id="auto-m7">— not yet automated —</div>
+          </div>
+        </div>
+      </div>
+      <!-- //////////  END MODULE 7  ////////// -->
+
+
+      <!-- //////////  MODULE 8 — RESISTANCE CHECK  ////////// -->
+      <!-- CAN EDIT: item-body content, labels, rule-row text  -->
+      <!-- DO NOT EDIT: id="item-m8", id="cb-m8" -->
+      <div class="checklist-item" id="item-m8">
+        <div class="item-header" onclick="toggleModule('m8')">
+          <input type="checkbox" id="cb-m8" onclick="event.stopPropagation(); checkModule('m8')">
+          <span class="item-title">8. Cross-Check Strike vs Resistance Level</span>
+          <span class="item-step">TradingView 1H / 4H</span>
+          <span class="expand-btn" id="exp-m8">▼</span>
+        </div>
+        <div class="item-body collapsed" id="body-m8">
+          <b>What to do:</b> TradingView → BTC/USDT → 1H or 4H → draw horizontal lines at recent swing highs and resistance zones → compare with your selected strike price.<br><br>
+          <div class="rule-row"><span class="arrow">→</span><span>Strike at or above a clear resistance level:</span> <span class="tag tag-go">Excellent — confluence of barriers</span></div>
+          <div class="rule-row"><span class="arrow">→</span><span>Resistance below strike and already broken upward:</span> <span class="tag tag-warn">Move strike up one step</span></div>
+          <div class="rule-row"><span class="arrow">→</span><span>BTC in price discovery, no clear resistance:</span> <span class="tag tag-warn">Use more conservative delta (0.10)</span></div>
+          <div class="auto-result">
+            <div class="auto-label">🤖 Automation result</div>
+            <div class="auto-value" id="auto-m8">— not yet automated —</div>
+          </div>
+        </div>
+      </div>
+      <!-- //////////  END MODULE 8  ////////// -->
+
+
+      <!-- //////////  MODULE 9 — ATR CHECK  ////////// -->
+      <!-- CAN EDIT: item-body content, labels, rule-row text  -->
+      <!-- DO NOT EDIT: id="item-m9", id="cb-m9" -->
+      <div class="checklist-item" id="item-m9">
+        <div class="item-header" onclick="toggleModule('m9')">
+          <input type="checkbox" id="cb-m9" onclick="event.stopPropagation(); checkModule('m9')">
+          <span class="item-title">9. Check ATR 4H — Strike Should Be &gt; 1.5× ATR Away</span>
+          <span class="item-step">TradingView → ATR Indicator</span>
+          <span class="expand-btn" id="exp-m9">▼</span>
+        </div>
+        <div class="item-body collapsed" id="body-m9">
+          <b>What to do:</b> TradingView → BTC 4H → Indicators → ATR (default 14) → read current value.<br><br>
+          <div class="formula-box">Min safe distance = ATR (4H) × 1.5
+
+ATR 4H = $1,200 → Min distance = $1,800
+BTC spot = $74,000 → Strike must be above $75,800
+
+Delta 0.15 strike = $76,200 → ✅ Sufficient
+Delta 0.15 strike = $75,500 → ⚠️ Too close, move up</div>
+          <div class="rule-row"><span class="arrow">→</span><span>Strike &gt; 1.5× ATR above spot:</span> <span class="tag tag-go">Good distance — proceed</span></div>
+          <div class="rule-row"><span class="arrow">→</span><span>Strike &lt; 1.5× ATR above spot:</span> <span class="tag tag-warn">Too close for current volatility — move up or skip</span></div>
+          <div class="auto-result">
+            <div class="auto-label">🤖 Automation result</div>
+            <div class="auto-value" id="auto-m9">— not yet automated —</div>
+          </div>
+        </div>
+      </div>
+      <!-- //////////  END MODULE 9  ////////// -->
+
+
+      <!-- //////////  MODULE 9B — SD DISTANCE CHECK  ////////// -->
+      <!-- CAN EDIT: item-body content, labels, rule-row text  -->
+      <!-- DO NOT EDIT: id="item-m9b", id="cb-m9b", id="skip-m9b", data-skip="true" on skip checkbox -->
+      <!-- NOTE: v2 addition. SD Distance is a separate check from ATR — both must pass.
+           SD Distance scales with IV so it automatically adjusts per regime. -->
+      <div class="checklist-item" id="item-m9b">
+        <div class="item-header" onclick="toggleModule('m9b')">
+          <input type="checkbox" id="cb-m9b" onclick="event.stopPropagation(); checkModule('m9b')">
+          <span class="item-title">12. SD Distance — Strike Must Be &gt; 1.5 SD from Spot</span>
+          <span class="item-step">Calculate from IV + BTC Spot</span>
+          <span class="expand-btn" id="exp-m9b">▼</span>
+        </div>
+        <div class="item-body collapsed" id="body-m9b">
+          <b>What to do:</b> Using the current BTC spot price and the IV from the Bybit option chain, calculate the 1 Standard Deviation move for today's daily option window. Your strike must be more than 1.5 SD away from spot.<br><br>
+          <b>Why this is different from ATR:</b> ATR is based on recent price history. SD Distance is derived from IV — so it automatically widens when volatility is high. In high-vol regimes, SD Distance gives you a more accurate danger zone than ATR alone.<br><br>
+          <div class="formula-box">Formula (Daily Option — 8h window):
+SD = Spot × IV × √(1/365)
+
+Example:
+BTC Spot = $74,000
+IV = 30% (0.30)
+SD = $74,000 × 0.30 × √(1/365)
+SD = $74,000 × 0.30 × 0.05234
+SD ≈ $1,162
+
+Minimum strike distance = 1.5 × SD = $1,743
+Your strike must be above: $74,000 + $1,743 = $75,743
+
+Required SD distance by regime:
+Quiet  (Liq &lt; $50M):    1.5 SD minimum
+Borderline ($50-150M):   2.0 SD minimum
+Recovery (post-cascade): 2.5 SD minimum
+Pre-event / macro risk:  3.0 SD or skip</div>
+          <div class="rule-row"><span class="arrow">→</span><span>Strike distance &gt; 1.5 SD (quiet regime):</span> <span class="tag tag-go">Sufficient — proceed</span></div>
+          <div class="rule-row"><span class="arrow">→</span><span>Strike distance 1.0–1.5 SD:</span> <span class="tag tag-stop">Too close — SKIP or move strike up, tick below</span></div>
+          <div class="rule-row"><span class="arrow">→</span><span>Borderline regime ($50-150M liq) and strike &lt; 2 SD:</span> <span class="tag tag-warn">Move strike to 2 SD minimum</span></div>
+          <div class="note">SD Distance and ATR are complementary. Use whichever gives the wider (safer) strike requirement.</div>
+          <div class="auto-result">
+            <div class="auto-label">🤖 Automation result</div>
+            <div class="auto-value" id="auto-m9b">— not yet automated —</div>
+          </div>
+          <div class="skip-trigger">
+            <input type="checkbox" id="skip-m9b" data-skip="true" onchange="updateProgress()">
+            <label for="skip-m9b">⛔ Tick this if strike distance &lt; 1.5 SD and cannot move strike further → SKIP TRADE</label>
+          </div>
+        </div>
+      </div>
+      <!-- //////////  END MODULE 9B  ////////// -->
+
+
+      <!-- //////////  MODULE 10 — MAX PAIN  ////////// -->
+      <!-- CAN EDIT: item-body content, labels, rule-row text  -->
+      <!-- DO NOT EDIT: id="item-m10", id="cb-m10" -->
+      <div class="checklist-item" id="item-m10">
+        <div class="item-header" onclick="toggleModule('m10')">
+          <input type="checkbox" id="cb-m10" onclick="event.stopPropagation(); checkModule('m10')">
+          <span class="item-title">10. Check Max Pain Level on CoinGlass</span>
+          <span class="item-step">coinglass.com/pro/options/max-pain</span>
+          <span class="expand-btn" id="exp-m10">▼</span>
+        </div>
+        <div class="item-body collapsed" id="body-m10">
+          <b>What to do:</b> <span class="tool-link">coinglass.com/pro/options/max-pain</span> → find today's expiry → read Max Pain price.<br><br>
+          Max Pain = price where most options expire worthless. Market makers often nudge price toward it near expiry.<br><br>
+          <div class="rule-row"><span class="arrow">→</span><span>Max Pain below current BTC spot:</span> <span class="tag tag-go">Good — gravity pulls price away from your strike</span></div>
+          <div class="rule-row"><span class="arrow">→</span><span>Max Pain above current BTC spot:</span> <span class="tag tag-warn">Caution — price may be pulled toward your strike</span></div>
+          <div class="rule-row"><span class="arrow">→</span><span>Max Pain very close to your strike:</span> <span class="tag tag-warn">Move strike up one step</span></div>
+          <div class="auto-result">
+            <div class="auto-label">🤖 Automation result</div>
+            <div class="auto-value" id="auto-m10">— not yet automated —</div>
+          </div>
+          <div class="note">One signal among many — weight alongside IV, delta, and resistance. Not a standalone skip rule.</div>
+        </div>
+      </div>
+      <!-- //////////  END MODULE 10  ////////// -->
+
+
+    </div>
+  </div>
+  <!-- END PART B -->
+
+
+  <!-- ============================================================
+    PART C — RISK MANAGEMENT
+  ============================================================ -->
+  <div class="window">
+    <div class="title-bar"><div class="title-bar-text">Part C — Risk Management (Set Before Clicking "Sell")</div></div>
+    <div class="window-body" style="padding:10px 14px;">
+
+
+      <!-- //////////  MODULE 11 — STOP LOSS (Index Price — v2)  ////////// -->
+      <!-- CAN EDIT: item-body content, labels, rule-row text  -->
+      <!-- DO NOT EDIT: id="item-m11", id="cb-m11" -->
+      <div class="checklist-item" id="item-m11">
+        <div class="item-header" onclick="toggleModule('m11')">
+          <input type="checkbox" id="cb-m11" onclick="event.stopPropagation(); checkModule('m11')">
+          <span class="item-title">11. Set Stop-Loss — Index Price, Strike ± $500 (NOT Mark Price)</span>
+          <span class="item-step">Bybit → Trigger by Index Price</span>
+          <span class="expand-btn" id="exp-m11">▼</span>
+        </div>
+        <div class="item-body collapsed" id="body-m11">
+          <b>What to do:</b> After selling the call, immediately place a conditional stop order on Bybit. Set it to trigger by <b>Index Price</b> (not Mark Price). Use Market order type so you exit immediately when triggered.<br><br>
+          <b>Why NOT Mark Price:</b> Mark Price is calculated from IV model (Black-Scholes), not real market price. During IV spikes, Mark Price can show −27% or −195% loss when you've barely opened — even if BTC hasn't moved. This is a false signal. SL on Mark Price = getting stopped out by noise.<br><br>
+          <div class="formula-box">v2 SL Method — Index Price:
+
+Short Call SL:
+Trigger Price = Strike − $500
+Trigger by: Index Price (BTC spot price)
+Order type: Market
+
+Example: Short Call Strike $79,000
+SL Trigger = $79,000 − $500 = $78,500 (Index Price)
+→ If BTC Index hits $78,500, exit immediately
+
+Short Put SL:
+Trigger Price = Strike + $500
+Example: Short Put Strike $72,000
+SL Trigger = $72,000 + $500 = $72,500 (Index Price)
+
+RR still applies — verify premium × 2 is acceptable loss:
+Sold at $15 → max loss $30 → confirm $500 buffer gives you that room</div>
+          <div class="rule-row"><span class="arrow">→</span><span>SL set on Bybit, triggered by Index Price, Market order:</span> <span class="tag tag-go">Correct — safe to proceed</span></div>
+          <div class="rule-row"><span class="arrow">→</span><span>SL set using Mark Price:</span> <span class="tag tag-stop">Wrong — will trigger on IV noise, not real price</span></div>
+          <div class="rule-row"><span class="arrow">→</span><span>No SL set yet:</span> <span class="tag tag-stop">Do NOT leave position unprotected</span></div>
+          <div class="note">v2 change: SL is now Index Price at Strike ± $500, not "option price = 3× entry." The $500 buffer acts as your stop before gamma squeeze accelerates losses in the final 30 min TWAP window.</div>
+        </div>
+      </div>
+      <!-- //////////  END MODULE 11  ////////// -->
+
+
+      <!-- //////////  MODULE 12 — POSITION SIZE  ////////// -->
+      <!-- CAN EDIT: item-body content, labels, rule-row text  -->
+      <!-- DO NOT EDIT: id="item-m12", id="cb-m12" -->
+      <div class="checklist-item" id="item-m12">
+        <div class="item-header" onclick="toggleModule('m12')">
+          <input type="checkbox" id="cb-m12" onclick="event.stopPropagation(); checkModule('m12')">
+          <span class="item-title">12. Size Position to Max 2–3% of Portfolio Per Trade</span>
+          <span class="item-step">Position Sizing Rule</span>
+          <span class="expand-btn" id="exp-m12">▼</span>
+        </div>
+        <div class="item-body collapsed" id="body-m12">
+          <b>What to do:</b> Calculate max allowable loss in dollars, then work backward to max contracts.<br><br>
+          <div class="formula-box">Portfolio $10,000 → Max loss = $250 (2.5%)
+Premium/contract $60 → SL loss = $120
+Max contracts: $250 ÷ $120 = ~2 contracts
+
+Portfolio $5,000 → Max loss = $125 → Max contracts = 1</div>
+          <div class="rule-row"><span class="arrow">→</span><span>Max loss per trade ≤ 2–3% of USDT balance:</span> <span class="tag tag-go">Correctly sized</span></div>
+          <div class="rule-row"><span class="arrow">→</span><span>Tempted to add more because setup looks perfect:</span> <span class="tag tag-stop">Resist — no setup is guaranteed</span></div>
+          <div class="note">Over-sizing is the #1 way traders blow accounts on a 92% win-rate strategy.</div>
+        </div>
+      </div>
+      <!-- //////////  END MODULE 12  ////////// -->
+
+
+      <!-- //////////  MODULE 13 — CONSECUTIVE LOSSES  ////////// -->
+      <!-- CAN EDIT: item-body content, labels, rule-row text  -->
+      <!-- DO NOT EDIT: id="item-m13", id="cb-m13", id="skip-m13", data-skip="true" on skip checkbox -->
+      <div class="checklist-item" id="item-m13">
+        <div class="item-header" onclick="toggleModule('m13')">
+          <input type="checkbox" id="cb-m13" onclick="event.stopPropagation(); checkModule('m13')">
+          <span class="item-title">13. Check Consecutive Loss Count</span>
+          <span class="item-step">Your Trade Log</span>
+          <span class="expand-btn" id="exp-m13">▼</span>
+        </div>
+        <div class="item-body collapsed" id="body-m13">
+          <b>What to do:</b> Check your trade log. Count how many days <i>in a row</i> you have had a losing trade (SL triggered or closed at a loss).<br><br>
+          Three consecutive losses signals a possible regime change — volatility conditions may have shifted. Pausing protects capital while you reassess.<br><br>
+          <div class="rule-row"><span class="arrow">→</span><span>0, 1, or 2 consecutive losses:</span> <span class="tag tag-go">Normal variance — continue</span></div>
+          <div class="rule-row"><span class="arrow">→</span><span>3 or more consecutive losses:</span> <span class="tag tag-stop">STOP — tick below</span></div>
+          <div class="note">After the pause: re-evaluate IV vs HV, funding rate, and market structure before resuming.</div>
+          <div class="skip-trigger">
+            <input type="checkbox" id="skip-m13" data-skip="true" onchange="updateProgress()">
+            <label for="skip-m13">⛔ Tick this if 3+ consecutive losses → STOP trading for 2–3 days</label>
+          </div>
+        </div>
+      </div>
+      <!-- //////////  END MODULE 13  ////////// -->
+
+
+    </div>
+  </div>
+  <!-- END PART C -->
+
+
+  <!-- ============================================================
+    PART D — EXECUTION
+  ============================================================ -->
+  <div class="window">
+    <div class="title-bar"><div class="title-bar-text">Part D — Execution</div></div>
+    <div class="window-body" style="padding:10px 14px;">
+
+
+      <!-- //////////  MODULE 14 — ENTRY TIMING  ////////// -->
+      <!-- CAN EDIT: item-body content, labels, rule-row text  -->
+      <!-- DO NOT EDIT: id="item-m14", id="cb-m14" -->
+      <div class="checklist-item" id="item-m14">
+        <div class="item-header" onclick="toggleModule('m14')">
+          <input type="checkbox" id="cb-m14" onclick="event.stopPropagation(); checkModule('m14')">
+          <span class="item-title">14. Enter Trade Between 07:00–09:00 TH (00:00–02:00 UTC)</span>
+          <span class="item-step">Timing</span>
+          <span class="expand-btn" id="exp-m14">▼</span>
+        </div>
+        <div class="item-body collapsed" id="body-m14">
+          Lowest volatility, lowest volume period of the day. Full premium still intact — the entire 8-hour theta window is ahead.<br><br>
+          <div class="formula-box">Settlement:   15:00 TH (08:00 UTC)
+Optimal entry: 07:00–09:00 TH (00:00–02:00 UTC) → 6–8 hrs left
+Late entry:    after 11:00 TH → recalculate if premium still worthwhile
+Too late:      after 13:00 TH → under 2 hrs left → skip today</div>
+          <div class="rule-row"><span class="arrow">→</span><span>Entering 07:00–09:00 TH:</span> <span class="tag tag-go">Optimal window</span></div>
+          <div class="rule-row"><span class="arrow">→</span><span>Entering after 11:00 TH:</span> <span class="tag tag-warn">Premium decayed — recalculate if still worthwhile</span></div>
+          <div class="rule-row"><span class="arrow">→</span><span>Entering after 13:00 TH:</span> <span class="tag tag-stop">Skip today — premium too low for the risk</span></div>
+          <div class="note">Do not chase a late entry. Tomorrow is another opportunity.</div>
+        </div>
+      </div>
+      <!-- //////////  END MODULE 14  ////////// -->
+
+
+      <!-- //////////  MODULE 14B — PIN RISK EXIT AT 13:30 TH  ////////// -->
+      <!-- CAN EDIT: item-body content, labels, rule-row text  -->
+      <!-- DO NOT EDIT: id="item-m14b", id="cb-m14b" -->
+      <!-- NOTE: v2 hard rule. Close ALL positions by 13:30 TH regardless of P&L.
+           Do not hold through TWAP window (14:30-15:00). -->
+      <div class="checklist-item" id="item-m14b">
+        <div class="item-header" onclick="toggleModule('m14b')">
+          <input type="checkbox" id="cb-m14b" onclick="event.stopPropagation(); checkModule('m14b')">
+          <span class="item-title">14B. Pin Risk Exit — Close Position by 13:30 TH (Hard Rule)</span>
+          <span class="item-step">90 min before settlement</span>
+          <span class="expand-btn" id="exp-m14b">▼</span>
+        </div>
+        <div class="item-body collapsed" id="body-m14b">
+          <b>What to do:</b> Set a calendar reminder for 13:30 TH. If you still have an open position at 13:30 TH, close it — regardless of current P&L, regardless of how far BTC is from your strike.<br><br>
+          <b>Why 13:30 TH specifically:</b> The TWAP settlement window runs 14:30–15:00 TH (last 30 min). In the 60–90 minutes before that window, gamma squeeze risk accelerates sharply — especially if BTC is within $200 of your strike. Closing at 13:30 TH gives you the bulk of the profit while avoiding the most dangerous volatility window.<br><br>
+          <div class="formula-box">Pin Risk Timeline:
+
+13:30 TH → EXIT all positions (hard rule)
+14:00 TH → Do NOT hold if BTC is within $200 of your strike
+14:30 TH → TWAP window begins — gamma squeeze risk highest
+15:00 TH → Settlement — if you're still in, you're gambling
+
+Real example (Day 11):
+Short Call $78,000 · BTC at $77,950 at 14:00 TH
+"Safe, only $50 away" → did NOT close
+14:35 TH: BTC spiked to $78,015 · gamma pushed premium 5×
+Closed at 14:50 with much larger loss than necessary</div>
+          <div class="rule-row"><span class="arrow">→</span><span>Position closed before 13:30 TH:</span> <span class="tag tag-go">Safe — kept most of the premium</span></div>
+          <div class="rule-row"><span class="arrow">→</span><span>BTC within $200 of strike at 14:00 TH:</span> <span class="tag tag-stop">Close immediately — do not wait for TWAP</span></div>
+          <div class="rule-row"><span class="arrow">→</span><span>Holding through 14:30 TH by choice:</span> <span class="tag tag-stop">High risk — gamma squeeze can hit fast</span></div>
+          <div class="note">Closing at 13:30 TH means you capture ~85-90% of the maximum profit. The remaining 10-15% is not worth the gamma squeeze risk in the final 90 minutes.</div>
+        </div>
+      </div>
+      <!-- //////////  END MODULE 14B  ////////// -->
+
+
+
+      <!-- CAN EDIT: item-body content, labels, rule-row text  -->
+      <!-- DO NOT EDIT: id="item-m15", id="cb-m15" -->
+      <div class="checklist-item" id="item-m15">
+        <div class="item-header" onclick="toggleModule('m15')">
+          <input type="checkbox" id="cb-m15" onclick="event.stopPropagation(); checkModule('m15')">
+          <span class="item-title">15. Optional Mid-Day Check at ~12:00 TH (05:00 UTC)</span>
+          <span class="item-step">Monitor</span>
+          <span class="expand-btn" id="exp-m15">▼</span>
+        </div>
+        <div class="item-body collapsed" id="body-m15">
+          One quick check around 12:00 TH. Confirm SL order is still active on Bybit. Check if option price dropped significantly.<br><br>
+          <b>You do NOT need to watch constantly.</b> The SL is your protection.<br><br>
+          <div class="rule-row"><span class="arrow">→</span><span>Option price dropped to 30–50% of sell price:</span> <span class="tag tag-go">Consider early close (see item 16)</span></div>
+          <div class="rule-row"><span class="arrow">→</span><span>Option price near SL level:</span> <span class="tag tag-info">SL will handle it — trust the system</span></div>
+          <div class="rule-row"><span class="arrow">→</span><span>Everything quiet:</span> <span class="tag tag-info">Close Bybit — let it run to 15:00 TH</span></div>
+        </div>
+      </div>
+      <!-- //////////  END MODULE 15  ////////// -->
+
+
+      <!-- //////////  MODULE 16 — EARLY CLOSE  ////////// -->
+      <!-- CAN EDIT: item-body content, labels, rule-row text  -->
+      <!-- DO NOT EDIT: id="item-m16", id="cb-m16" -->
+      <div class="checklist-item" id="item-m16">
+        <div class="item-header" onclick="toggleModule('m16')">
+          <input type="checkbox" id="cb-m16" onclick="event.stopPropagation(); checkModule('m16')">
+          <span class="item-title">16. Early Close When Profit Reaches 50–70% of Premium</span>
+          <span class="item-step">Optional Profit Lock</span>
+          <span class="expand-btn" id="exp-m16">▼</span>
+        </div>
+        <div class="item-body collapsed" id="body-m16">
+          If option price decayed to 30–50% of sell price, buy back to close early and lock profit.<br><br>
+          <div class="formula-box">Sold call at: $60
+
+50% profit → buy back at $30 → locked = $30
+70% profit → buy back at $18 → locked = $42
+
+After closing: position fully flat, zero remaining risk.</div>
+          <div class="rule-row"><span class="arrow">→</span><span>Market calm, no news risk:</span> <span class="tag tag-info">Hold to settlement — let theta finish</span></div>
+          <div class="rule-row"><span class="arrow">→</span><span>50–70% profit reached AND risk event ahead:</span> <span class="tag tag-go">Close early — $30 win beats $120 loss</span></div>
+        </div>
+      </div>
+      <!-- //////////  END MODULE 16  ////////// -->
+
+
+    </div>
+  </div>
+  <!-- END PART D -->
+
+
+  <!-- ============================================================
+    SETTLEMENT REMINDER — CAN EDIT label text
+  ============================================================ -->
+  <div class="window">
+    <div class="title-bar"><div class="title-bar-text">⏰ Settlement Reminder — 15:00 TH (08:00 UTC)</div></div>
+    <div class="window-body">
+      <p><b>Settlement price = TWAP of BTC Index over the final 30 minutes: 14:30–15:00 TH (07:30–08:00 UTC).</b></p>
+      <p>A momentary spike above your strike that quickly reverts may still expire OTM due to TWAP averaging. <b>Do not rely on this</b> — your SL is your protection, not TWAP luck.</p>
+      <p>Expired OTM: keep 100% of remaining premium. Expired ITM: Bybit cash-settles in USDT — no BTC delivery needed.</p>
+    </div>
+  </div>
+
+  <div style="text-align:center; color:#fff; font-size:10px; margin-top:8px; opacity:0.8;">
+    For educational purposes only. Not financial advice. Options trading involves substantial risk of loss.
+  </div>
+
+</div><!-- end .main-window -->
+
+
+<!-- ============================================================
+  CORE ENGINE — DO NOT EDIT
+  Handles: progress counting, skip detection, expand/collapse.
+  All functions are keyed off data-skip="true" and .checklist-item
+  checkboxes, so adding/removing modules doesn't break the count
+  as long as you keep the id conventions (cb-mN, item-mN).
+============================================================ -->
+<script>
+
+/* ── Progress & Skip engine ──────────────────────────────────
+   Counts ALL main checkboxes (cb-mN) that are checked.
+   Counts total by querying DOM — so adding a new module
+   automatically increases the total without editing JS.
+   Skip is driven by any [data-skip] checkbox being checked.
+──────────────────────────────────────────────────────────── */
+function updateProgress() {
+  const allMain  = document.querySelectorAll('[id^="cb-m"]');
+  const allSkip  = document.querySelectorAll('[data-skip="true"]');
+
+  const total    = allMain.length;
+  const done     = Array.from(allMain).filter(cb => cb.checked).length;
+  const skipped  = Array.from(allSkip).some(cb => cb.checked);
+  const pct      = total > 0 ? Math.round(done / total * 100) : 0;
+
+  document.getElementById('progress-fill').style.width  = pct + '%';
+  document.getElementById('progress-label').textContent = done + ' / ' + total + ' complete (' + pct + '%)';
+  document.getElementById('skip-alert').classList.toggle('visible', skipped);
+  document.getElementById('go-alert').classList.toggle('visible', done === total && !skipped);
+}
+
+/* ── Module toggle (expand/collapse) ── */
+function toggleModule(id) {
+  const body = document.getElementById('body-' + id);
+  const exp  = document.getElementById('exp-'  + id);
+  const isCollapsed = body.classList.contains('collapsed');
+  body.classList.toggle('collapsed', !isCollapsed);
+  exp.textContent = isCollapsed ? '▲' : '▼';
+}
+
+/* ── Module check (main checkbox) ── */
+function checkModule(id) {
+  const cb   = document.getElementById('cb-'   + id);
+  const item = document.getElementById('item-' + id);
+  item.classList.toggle('checked-item', cb.checked);
+  updateProgress();
+}
+
+/* ── AUTOMATION HELPER — CAN USE ────────────────────────────
+   Call this from your automation scripts to inject results.
+   moduleId: 'm1'–'m16', plus 'm6b', 'm6c', 'm6d', 'm9b', 'm14b'
+   resultText: string to display in the blue result box
+   autoCheck: true  = mark the main checkbox as done
+   autoSkip:  true  = tick the skip checkbox (if module has one)
+
+   Full module list:
+     m1   = Macro Calendar        (skip: FOMC/CPI/NFP)
+     m2   = IV/HV Ratio           (skip: ratio < 1.15)
+     m3   = ATM Straddle          (info only, no skip)
+     m4   = Funding Rate          (skip: < -0.03%)
+     m5   = BTC Rally yesterday   (skip: +5%)
+     m6   = Liquidation cascade   (skip: active cascade)
+     m6b  = Liquidation 24h tiers (skip: >= $150M)
+     m6c  = Combination Read      (skip: Pattern 2)
+     m6d  = Macro View            (no skip, declaration)
+     m7   = Delta selection       (no skip)
+     m8   = Resistance check      (no skip)
+     m9   = ATR check             (no skip)
+     m9b  = SD Distance           (skip: < 1.5 SD)
+     m10  = Max Pain              (no skip)
+     m11  = Stop-Loss (Index Px)  (no skip)
+     m12  = Position sizing       (no skip)
+     m13  = Consecutive losses    (skip: 3+ losses)
+     m14  = Entry timing          (no skip)
+     m14b = Pin Risk Exit 13:30   (no skip, reminder)
+     m15  = Mid-day check         (no skip)
+     m16  = Early close           (no skip)
+
+   Example:
+     setModuleResult('m2',  'IV: 31% | HV30: 19.55% | Ratio: 1.59 ✅', true, false);
+     setModuleResult('m6b', 'Liquidation 24h: $255M ⛔ CASCADE',        true, true);
+     setModuleResult('m6c', 'Pattern 2 — Long Capitulation detected',   true, true);
+──────────────────────────────────────────────────────────── */
+function setModuleResult(moduleId, resultText, autoCheck, autoSkip) {
+  const autoEl = document.getElementById('auto-' + moduleId);
+  if (autoEl) autoEl.textContent = resultText;
+
+  if (autoCheck) {
+    const cb   = document.getElementById('cb-'   + moduleId);
+    const item = document.getElementById('item-' + moduleId);
+    if (cb)   cb.checked = true;
+    if (item) item.classList.add('checked-item');
+  }
+
+  if (autoSkip) {
+    const skipEl = document.getElementById('skip-' + moduleId);
+    if (skipEl) skipEl.checked = true;
+  }
+
+  updateProgress();
+}
+
+/* ── Sticky note: minimize ── */
+let stickyMin = false;
+function toggleSticky() {
+  stickyMin = !stickyMin;
+  document.getElementById('sticky-table').style.display = stickyMin ? 'none' : '';
+}
+
+/* ── Sticky note: drag ── */
+(function() {
+  const el     = document.getElementById('sticky');
+  const handle = document.getElementById('sticky-drag');
+  let dragging = false, ox = 0, oy = 0;
+  handle.addEventListener('mousedown', function(e) {
+    dragging = true;
+    ox = e.clientX - el.getBoundingClientRect().left;
+    oy = e.clientY - el.getBoundingClientRect().top;
+    e.preventDefault();
+  });
+  document.addEventListener('mousemove', function(e) {
+    if (!dragging) return;
+    el.style.left  = (e.clientX - ox) + 'px';
+    el.style.top   = (e.clientY - oy) + 'px';
+    el.style.right = 'auto';
+  });
+  document.addEventListener('mouseup', function() { dragging = false; });
+})();
+
+/* ── Sticky note: highlight current time row (Thailand UTC+7) ── */
+function highlightCurrentRow() {
+  const now  = new Date();
+  const th   = new Date(now.getTime() + (7 * 60 - now.getTimezoneOffset()) * 60000);
+  const mins = th.getUTCHours() * 60 + th.getUTCMinutes();
+
+  document.querySelectorAll('.sticky-note tbody tr').forEach(r => r.classList.remove('now'));
+
+  if      (mins < 7*60)                          document.getElementById('row-checks').classList.add('now');
+  else if (mins < 9*60)                        { document.getElementById('row-entry').classList.add('now');
+                                                 document.getElementById('row-funding1').classList.add('now'); }
+  else if (mins >= 12*60 && mins < 13*60+30)    document.getElementById('row-midday').classList.add('now');
+  else if (mins >= 13*60+30 && mins < 14*60+30) document.getElementById('row-pinrisk').classList.add('now');
+  else if (mins >= 14*60+30 && mins < 15*60+1) { document.getElementById('row-twap').classList.add('now');
+                                                  document.getElementById('row-settle').classList.add('now'); }
+  else if (mins >= 23*60-10 && mins < 23*60+10) document.getElementById('row-funding3').classList.add('now');
+}
+
+highlightCurrentRow();
+setInterval(highlightCurrentRow, 60000);
+updateProgress();
+
+</script>
+<!-- END CORE ENGINE -->
+
+</body>
+</html>
