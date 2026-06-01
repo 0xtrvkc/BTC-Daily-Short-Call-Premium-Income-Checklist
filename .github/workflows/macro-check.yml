@@ -1,0 +1,38 @@
+name: Macro Calendar Check
+
+on:
+  schedule:
+    # 23:00 UTC = 06:00 Bangkok (GMT+7) — runs before your 8am session
+    - cron: "0 23 * * *"
+  workflow_dispatch: # allow manual trigger from GitHub UI
+
+permissions:
+  contents: write # needed to commit macro.json back to repo
+
+jobs:
+  check-macro:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: pip install requests beautifulsoup4
+
+      - name: Run macro check
+        run: python scripts/check_macro.py
+
+      - name: Commit macro.json
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add data/macro.json
+          # Only commit if the file actually changed
+          git diff --cached --quiet || git commit -m "chore: macro check $(date -u +'%Y-%m-%d %H:%M UTC')"
+          git push
