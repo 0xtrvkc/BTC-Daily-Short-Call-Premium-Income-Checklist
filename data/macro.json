@@ -1,8 +1,15 @@
 {
   "date": "2026-06-01",
-  "checked_at": "2026-06-01T07:43:54Z",
-  "skip": false,
-  "event_count": 0,
-  "events": [],
-  "summary": "No HIGH impact USD events \u2014 PROCEED"
+  "checked_at": "2026-06-01T07:50:50Z",
+  "skip": true,
+  "event_count": 1,
+  "events": [
+    {
+      "time": "9:00am",
+      "currency": "USD",
+      "impact": "HIGH",
+      "event": "ISM Manufacturing PMI"
+    }
+  ],
+  "summary": "1 HIGH impact USD event(s) found \u2014 SKIP TRADE"
 }
