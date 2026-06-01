@@ -1,0 +1,8 @@
+{
+  "date": "1970-01-01",
+  "checked_at": "1970-01-01T00:00:00Z",
+  "skip": false,
+  "event_count": 0,
+  "events": [],
+  "summary": "⚠️ Not yet run — trigger the GitHub Action manually once to initialise"
+}
