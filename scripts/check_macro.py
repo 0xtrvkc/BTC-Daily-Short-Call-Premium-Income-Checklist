@@ -35,11 +35,19 @@ def today_bangkok() -> str:
     return datetime.now(BANGKOK_TZ).strftime("%Y-%m-%d")
 
 
+def today_ff_label() -> str:
+    """
+    ForexFactory day-breaker rows contain text like 'Mon Jun 1' or 'Jun 1'.
+    Build both short forms to match against.
+    Returns e.g. 'Jun 1'
+    """
+    now = datetime.now(BANGKOK_TZ)
+    # e.g. "Jun 1"  (no leading zero — FF omits it)
+    return now.strftime("%b %-d")
+
+
 def is_high_impact(impact_cell) -> bool:
-    """
-    FF uses <span class="icon icon--ff-impact-red"> for HIGH impact.
-    Match it directly.
-    """
+    """FF uses <span class="icon icon--ff-impact-red"> for HIGH impact."""
     if not impact_cell:
         return False
     for tag in impact_cell.find_all(True):
@@ -50,10 +58,6 @@ def is_high_impact(impact_cell) -> bool:
 
 
 def scrape_events() -> list[dict]:
-    """
-    Fetch ForexFactory calendar for TODAY only (Bangkok date).
-    Returns list of HIGH impact USD events.
-    """
     resp = requests.get(FF_URL, headers=HEADERS, timeout=15)
     resp.raise_for_status()
     soup = BeautifulSoup(resp.text, "html.parser")
@@ -62,42 +66,45 @@ def scrape_events() -> list[dict]:
     if not table:
         snippet = resp.text[5000:8000]
         print(f"DEBUG: calendar__table not found. HTML snippet:\n{snippet}")
-        raise RuntimeError("Could not find calendar table — ForexFactory layout may have changed.")
+        raise RuntimeError("Could not find calendar table — layout may have changed.")
 
-    today_str  = today_bangkok()                          # e.g. "2026-06-01"
-    events     = []
+    today_label = today_ff_label()   # e.g. "Jun 1"
+    print(f"DEBUG: looking for day label containing '{today_label}'")
+
+    events            = []
     current_time      = ""
-    in_today_section  = False  # True once we enter today's day-breaker section
-    day_breaker_count = 0      # count how many day-breakers we've passed
+    in_today_section  = False
 
     for row in table.find_all("tr", class_=re.compile(r"calendar__row")):
         row_classes = row.get("class", [])
 
-        # ── Day-breaker row: marks start of a new calendar day ──
+        # ── Day-breaker: check if this row's text matches today or tomorrow ──
         if "calendar__row--day-breaker" in row_classes:
-            day_breaker_count += 1
+            breaker_text = row.get_text(strip=True)
+            print(f"DEBUG day-breaker: '{breaker_text}'")
 
-            # FF calendar shows: yesterday (sometimes) → today → tomorrow
-            # The first day-breaker is today's section header.
-            # The second day-breaker means we've moved into tomorrow — stop.
+            if today_label in breaker_text:
+                # This is today's header — start collecting
+                in_today_section = True
+                continue
+
             if in_today_section:
-                print(f"DEBUG: hit second day-breaker, stopping (processed today's section)")
-                break  # past today, done
+                # We were in today's section and hit a NEW day — stop
+                print(f"DEBUG: hit tomorrow's day-breaker '{breaker_text}', stopping")
+                break
 
-            in_today_section = True
-            print(f"DEBUG: entered today's section (day-breaker #{day_breaker_count})")
+            # Haven't reached today yet — skip
             continue
 
-        # Only process rows inside today's section
         if not in_today_section:
             continue
 
-        # Time cell (FF omits it when multiple events share a slot)
+        # Time
         time_cell = row.find("td", class_="calendar__time")
         if time_cell and time_cell.get_text(strip=True):
             current_time = time_cell.get_text(strip=True)
 
-        # Currency — must be USD
+        # Currency
         currency_cell = row.find("td", class_="calendar__currency")
         if not currency_cell:
             continue
@@ -108,7 +115,8 @@ def scrape_events() -> list[dict]:
         # Impact
         impact_cell = row.find("td", class_="calendar__impact")
         high = is_high_impact(impact_cell)
-        print(f"DEBUG row: time={current_time} currency={currency} high={high} impact_html={str(impact_cell)[:120]}")
+        print(f"DEBUG row: time={current_time} currency={currency} high={high} "
+              f"impact_html={str(impact_cell)[:120]}")
 
         if not high:
             continue
@@ -119,7 +127,7 @@ def scrape_events() -> list[dict]:
             continue
         event_name = event_cell.get_text(strip=True)
 
-        print(f"  ✅ HIGH impact found: [{current_time}] {event_name}")
+        print(f"  ✅ HIGH impact: [{current_time}] {event_name}")
         events.append({
             "time":     current_time,
             "currency": currency,
