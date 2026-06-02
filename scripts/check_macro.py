@@ -1,6 +1,7 @@
 """
 check_macro.py
 Scrapes ForexFactory for today's HIGH impact USD events.
+Only triggers skip for FOMC / CPI / NFP / Fed Chair / Fed Speech.
 Writes result to /data/macro.json.
 Runs via GitHub Actions every morning before 8am Bangkok (GMT+7).
 """
@@ -29,6 +30,9 @@ HEADERS = {
     "Referer": "https://www.google.com/",
 }
 
+# Only these events trigger a skip — everything else (ISM, PMI, etc.) is ignored
+KILL_LIST = ["FOMC", "CPI", "NFP", "Fed Chair", "Fed Speech", "Federal Reserve"]
+
 # ── Helpers ───────────────────────────────────────────────────────────────────
 
 def today_bangkok() -> str:
@@ -38,15 +42,13 @@ def today_bangkok() -> str:
 def today_ff_label() -> str:
     """
     ForexFactory day-breaker rows contain text like 'Mon Jun 1' or 'Jun 1'.
-    Build both short forms to match against.
     Returns e.g. 'Jun 1'
     """
     now = datetime.now(BANGKOK_TZ)
-    # e.g. "Jun 1"  (no leading zero — FF omits it)
     return now.strftime("%b %-d")
 
 
-def is_high_impact(impact_cell) -> bool:
+def is_red_impact(impact_cell) -> bool:
     """FF uses <span class="icon icon--ff-impact-red"> for HIGH impact."""
     if not impact_cell:
         return False
@@ -55,6 +57,11 @@ def is_high_impact(impact_cell) -> bool:
         if "icon--ff-impact-red" in classes:
             return True
     return False
+
+
+def is_on_kill_list(event_name: str) -> bool:
+    """Return True if the event name matches any entry in KILL_LIST."""
+    return any(k.lower() in event_name.lower() for k in KILL_LIST)
 
 
 def scrape_events() -> list[dict]:
@@ -68,32 +75,29 @@ def scrape_events() -> list[dict]:
         print(f"DEBUG: calendar__table not found. HTML snippet:\n{snippet}")
         raise RuntimeError("Could not find calendar table — layout may have changed.")
 
-    today_label = today_ff_label()   # e.g. "Jun 1"
+    today_label = today_ff_label()
     print(f"DEBUG: looking for day label containing '{today_label}'")
 
-    events            = []
-    current_time      = ""
-    in_today_section  = False
+    events           = []
+    current_time     = ""
+    in_today_section = False
 
     for row in table.find_all("tr", class_=re.compile(r"calendar__row")):
         row_classes = row.get("class", [])
 
-        # ── Day-breaker: check if this row's text matches today or tomorrow ──
+        # ── Day-breaker: match by date text, not by count ──
         if "calendar__row--day-breaker" in row_classes:
             breaker_text = row.get_text(strip=True)
             print(f"DEBUG day-breaker: '{breaker_text}'")
 
             if today_label in breaker_text:
-                # This is today's header — start collecting
                 in_today_section = True
                 continue
 
             if in_today_section:
-                # We were in today's section and hit a NEW day — stop
                 print(f"DEBUG: hit tomorrow's day-breaker '{breaker_text}', stopping")
                 break
 
-            # Haven't reached today yet — skip
             continue
 
         if not in_today_section:
@@ -104,7 +108,7 @@ def scrape_events() -> list[dict]:
         if time_cell and time_cell.get_text(strip=True):
             current_time = time_cell.get_text(strip=True)
 
-        # Currency
+        # Currency — must be USD
         currency_cell = row.find("td", class_="calendar__currency")
         if not currency_cell:
             continue
@@ -112,22 +116,23 @@ def scrape_events() -> list[dict]:
         if currency != "USD":
             continue
 
-        # Impact
-        impact_cell = row.find("td", class_="calendar__impact")
-        high = is_high_impact(impact_cell)
-        print(f"DEBUG row: time={current_time} currency={currency} high={high} "
-              f"impact_html={str(impact_cell)[:120]}")
-
-        if not high:
-            continue
-
-        # Event name
+        # Event name — get it early so we can kill-list check
         event_cell = row.find("td", class_="calendar__event")
         if not event_cell:
             continue
         event_name = event_cell.get_text(strip=True)
 
-        print(f"  ✅ HIGH impact: [{current_time}] {event_name}")
+        # Impact — must be red AND on kill list
+        impact_cell = row.find("td", class_="calendar__impact")
+        red      = is_red_impact(impact_cell)
+        on_list  = is_on_kill_list(event_name)
+        print(f"DEBUG row: time={current_time} currency={currency} "
+              f"red={red} on_kill_list={on_list} event='{event_name}'")
+
+        if not (red and on_list):
+            continue
+
+        print(f"  ✅ KILL LIST match: [{current_time}] {event_name}")
         events.append({
             "time":     current_time,
             "currency": currency,
@@ -148,9 +153,9 @@ def build_result(events: list[dict]) -> dict:
         "event_count": len(events),
         "events":      events,
         "summary": (
-            f"{len(events)} HIGH impact USD event(s) found — SKIP TRADE"
+            f"{len(events)} kill-list event(s) found — SKIP TRADE"
             if skip
-            else "No HIGH impact USD events — PROCEED"
+            else "No FOMC/CPI/NFP/Fed Speech today — PROCEED"
         ),
     }
 
@@ -175,7 +180,7 @@ def main():
         print(f"ERROR: {exc}")
     else:
         result = build_result(events)
-        print(f"Found {len(events)} HIGH impact USD event(s).")
+        print(f"Found {len(events)} kill-list event(s).")
         for e in events:
             print(f"  [{e['time']}] {e['event']}")
 
