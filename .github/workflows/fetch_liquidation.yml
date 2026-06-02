@@ -1,4 +1,4 @@
-name: Fetch BTC Liquidation 24h
+name: module6b_Fetch BTC Liquidation 24h
 
 on:
   schedule:
