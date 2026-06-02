@@ -555,6 +555,43 @@ Real example from playbook:
         </div>
       </div>
       <!-- //////////  END MODULE 6B  ////////// -->
+        <script>
+      (async function autoCheckM6B() {
+        const GITHUB_USER = "0xtrvkc";
+        const REPO_NAME   = "BTC-Daily-Short-Call-Premium-Income-Checklist";
+        const url = `https://0xtrvkc.github.io/BTC-Daily-Short-Call-Premium-Income-Checklist/data/liquidation.json?bust=${Date.now()}`;
+        const el      = document.getElementById("auto-m6b");
+        const skipBox = document.getElementById("skip-m6b");
+        const mainCb  = document.getElementById("cb-m6b");
+ 
+        try {
+          const res = await fetch(url);
+          if (!res.ok) throw new Error(`HTTP ${res.status}`);
+          const data = await res.json();
+ 
+          // stale guard — warn if Action hasn't run today yet
+          const today = new Date().toLocaleDateString("en-CA", { timeZone: "Asia/Bangkok" });
+          if (data.date !== today) {
+            el.textContent = `⚠️ Data from ${data.date} (today ${today}) — Action may not have run yet. Check manually at coinglass.com`;
+            return;
+          }
+ 
+          el.textContent = data.message;
+ 
+          if (data.skip) {
+            skipBox.checked = true;
+            skipBox.dispatchEvent(new Event("change"));
+          } else {
+            mainCb.checked = true;
+            if (typeof checkModule === "function") checkModule("m6b");
+          }
+          if (typeof updateProgress === "function") updateProgress();
+ 
+        } catch (err) {
+          el.textContent = `⚠️ Could not load liquidation data (${err.message}) — check manually at coinglass.com`;
+        }
+      })();
+      </script>
 
 
       <!-- //////////  MODULE 6C — COMBINATION READ  ////////// -->
