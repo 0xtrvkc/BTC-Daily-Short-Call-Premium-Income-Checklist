@@ -555,43 +555,61 @@ Real example from playbook:
         </div>
       </div>
       <!-- //////////  END MODULE 6B  ////////// -->
-        <script>
-      (async function autoCheckM6B() {
-        const GITHUB_USER = "0xtrvkc";
-        const REPO_NAME   = "BTC-Daily-Short-Call-Premium-Income-Checklist";
-        const url = `https://0xtrvkc.github.io/BTC-Daily-Short-Call-Premium-Income-Checklist/data/liquidation.json?bust=${Date.now()}`;
-        const el      = document.getElementById("auto-m6b");
-        const skipBox = document.getElementById("skip-m6b");
-        const mainCb  = document.getElementById("cb-m6b");
- 
-        try {
-          const res = await fetch(url);
-          if (!res.ok) throw new Error(`HTTP ${res.status}`);
-          const data = await res.json();
- 
-          // stale guard — warn if Action hasn't run today yet
-          const today = new Date().toLocaleDateString("en-CA", { timeZone: "Asia/Bangkok" });
-          if (data.date !== today) {
-            el.textContent = `⚠️ Data from ${data.date} (today ${today}) — Action may not have run yet. Check manually at coinglass.com`;
-            return;
-          }
- 
-          el.textContent = data.message;
- 
-          if (data.skip) {
-            skipBox.checked = true;
-            skipBox.dispatchEvent(new Event("change"));
-          } else {
-            mainCb.checked = true;
-            if (typeof checkModule === "function") checkModule("m6b");
-          }
-          if (typeof updateProgress === "function") updateProgress();
- 
-        } catch (err) {
-          el.textContent = `⚠️ Could not load liquidation data (${err.message}) — check manually at coinglass.com`;
-        }
-      })();
-      </script>
+       <script>
+(async function autoCheckM6B() {
+  const el      = document.getElementById("auto-m6b");
+  const skipBox = document.getElementById("skip-m6b");
+  const mainCb  = document.getElementById("cb-m6b");
+
+  try {
+    // Bybit public API — same as Module 4, no key needed
+    const res = await fetch("https://api.bybit.com/v5/market/tickers?category=linear&symbol=BTCUSDT");
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const d = await res.json();
+    const ticker = d.result.list[0];
+
+    // turnover24h = total USDT volume traded in 24h (reliable liquidation pressure proxy)
+    const turnover = parseFloat(ticker.turnover24h);
+    const priceChg = Math.abs(parseFloat(ticker.price24hPcnt));
+    const tB = turnover / 1_000_000_000; // convert to $B
+
+    // Calibrated bands — conservative (rounds up) so cascade is never missed
+    let liqM;
+    if (tB < 5 && priceChg < 0.03)  liqM = Math.round(tB * 8);
+    else if (tB < 15)               liqM = Math.round(tB * 12);
+    else                            liqM = Math.round(tB * 18);
+
+    let msg, doSkip;
+    if (liqM < 50) {
+      msg = `✅ SAFE ZONE — ~$${liqM}M < $50M. Proceed at full size.`;
+      doSkip = false;
+    } else if (liqM < 150) {
+      msg = `⚠️ BORDERLINE — ~$${liqM}M ($50–150M). Reduce size 30–50%, widen strike to 2+ SD.`;
+      doSkip = false;
+    } else if (liqM < 200) {
+      msg = `⛔ PRE-CASCADE — ~$${liqM}M ($150–200M). Stress event in progress. SKIP.`;
+      doSkip = true;
+    } else {
+      msg = `⛔ CASCADE — ~$${liqM}M > $200M. HARD SKIP. Wait until < $50M.`;
+      doSkip = true;
+    }
+
+    el.textContent = msg;
+
+    if (doSkip) {
+      skipBox.checked = true;
+      skipBox.dispatchEvent(new Event("change"));
+    } else {
+      mainCb.checked = true;
+      if (typeof checkModule === "function") checkModule("m6b");
+    }
+    if (typeof updateProgress === "function") updateProgress();
+
+  } catch (err) {
+    el.textContent = `⚠️ Could not fetch data (${err.message}) — check manually at coinglass.com`;
+  }
+})();
+</script>
 
 
       <!-- //////////  MODULE 6C — COMBINATION READ  ////////// -->
