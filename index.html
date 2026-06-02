@@ -267,6 +267,11 @@
 
     } else {
       el.textContent = `✅ ${data.summary}`;
+
+      // Auto-tick the main checkbox
+      const mainBox = document.getElementById("cb-m1");
+      mainBox.checked = true;
+      if (typeof checkModule === "function") checkModule("m1");
     }
 
   } catch (err) {
