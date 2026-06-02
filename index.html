@@ -683,6 +683,49 @@ NEUTRAL: Sideways range · No clear trend · MACD near zero
           </div>
         </div>
       </div>
+      <script>
+(async function autoCheckM7() {
+  const GITHUB_USER = "0xtrvkc";
+  const REPO_NAME = "BTC-Daily-Short-Call-Premium-Income-Checklist";
+  const url = `https://${GITHUB_USER}.github.io/${REPO_NAME}/data/m7.json?bust=${Date.now()}`;
+  const el = document.getElementById("auto-m7");
+
+  el.textContent = "⏳ Loading…";
+
+  try {
+    const res = await fetch(url);
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const data = await res.json();
+
+    const today = new Date().toLocaleDateString("en-CA", { timeZone: "Asia/Bangkok" });
+    if (data.date !== today) {
+      el.textContent = `⚠️ Data is from ${data.date} (today is ${today}) — GitHub Action may not have run yet. Check Bybit manually.`;
+      return;
+    }
+
+    el.textContent = data.result + " | " + data.detail;
+
+    if (data.autoSkip) {
+      const skipBox = document.getElementById("skip-m6b"); // reuses liquidation skip if needed
+      // M7 has no skip trigger — just show the warning
+    }
+
+    if (data.autoCheck) {
+      const cb = document.getElementById("cb-m7");
+      if (!cb.checked) {
+        cb.checked = true;
+        if (typeof checkModule === "function") checkModule("m7");
+      }
+    }
+
+    if (typeof updateProgress === "function") updateProgress();
+
+  } catch (err) {
+    el.textContent = `⚠️ Could not load M7 data (${err.message}) — check Bybit option chain manually.`;
+    console.error("[m7-check]", err);
+  }
+})();
+</script>
       <!-- //////////  END MODULE 7  ////////// -->
 
 
