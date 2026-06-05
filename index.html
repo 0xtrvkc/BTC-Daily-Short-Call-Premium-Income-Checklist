@@ -591,55 +591,110 @@ Real example from playbook:
 
   el.innerHTML = `
     <span style="color:#000080;font-weight:bold">Liquidation 24h ($M):</span>
-    <input type="number" id="liq-input" placeholder="e.g. 409"
-      style="width:72px;margin:0 6px;font-family:'Courier New',monospace;font-size:11px;border:2px inset #888;padding:1px 4px;">
-    <button id="liq-btn"
-      style="font-size:10px;padding:1px 8px;cursor:pointer">Check</button>
+    <span id="liq-auto-val" style="font-family:'Courier New',monospace;font-size:11px;margin-left:6px">⏳ fetching…</span>
+    <button id="liq-refresh" style="font-size:10px;padding:1px 8px;cursor:pointer;margin-left:8px;display:none">↻ Refresh</button>
     <div id="liq-verdict" style="margin-top:5px;font-family:'Courier New',monospace;font-size:11px;"></div>
+    <div id="liq-fallback" style="display:none;margin-top:6px">
+      <input type="number" id="liq-input" placeholder="e.g. 409"
+        style="width:72px;margin:0 6px;font-family:'Courier New',monospace;font-size:11px;border:2px inset #888;padding:1px 4px;">
+      <button id="liq-btn" style="font-size:10px;padding:1px 8px;cursor:pointer">Check</button>
+    </div>
   `;
 
-  function check() {
-    const val = parseFloat(document.getElementById("liq-input").value);
+  function applyVerdict(val) {
+    document.getElementById("liq-auto-val").textContent = `$${val}M (live)`;
+    document.getElementById("liq-refresh").style.display = "inline";
     const verdict = document.getElementById("liq-verdict");
-    if (isNaN(val) || val < 0) {
-      verdict.textContent = "⚠️ Enter a valid number.";
-      return;
-    }
-
     let msg, doSkip;
-    if (val < 50) {
-      msg = "✅ SAFE ZONE — $" + val + "M < $50M. Proceed at full size.";
-      doSkip = false;
-    } else if (val < 150) {
-      msg = "⚠️ BORDERLINE — $" + val + "M ($50–150M). Reduce size 30–50%, widen strike to 2+ SD.";
-      doSkip = false;
-    } else if (val < 200) {
-      msg = "⛔ PRE-CASCADE — $" + val + "M ($150–200M). Stress event in progress. SKIP.";
-      doSkip = true;
-    } else {
-      msg = "⛔ CASCADE — $" + val + "M > $200M. HARD SKIP. Wait until < $50M.";
-      doSkip = true;
-    }
-
+    if      (val < 50)  { msg = `✅ SAFE ZONE — $${val}M < $50M. Proceed full size.`;          doSkip = false; }
+    else if (val < 150) { msg = `⚠️ BORDERLINE — $${val}M. Reduce size 30–50%, widen strike.`; doSkip = false; }
+    else if (val < 200) { msg = `⛔ PRE-CASCADE — $${val}M. Stress in progress. SKIP.`;        doSkip = true;  }
+    else                { msg = `⛔ CASCADE — $${val}M > $200M. HARD SKIP.`;                    doSkip = true;  }
     verdict.textContent = msg;
-
-    if (doSkip) {
-      skipBox.checked = true;
-      skipBox.dispatchEvent(new Event("change"));
-      mainCb.checked = false;
-    } else {
-      skipBox.checked = false;
-      mainCb.checked = true;
-      if (typeof checkModule === "function") checkModule("m6b");
-    }
+    skipBox.checked = doSkip;
+    skipBox.dispatchEvent(new Event("change"));
+    mainCb.checked = !doSkip;
+    if (!doSkip && typeof checkModule === "function") checkModule("m6b");
     if (typeof updateProgress === "function") updateProgress();
   }
 
-  document.getElementById("liq-btn").addEventListener("click", check);
+  function showFallback(reason) {
+    document.getElementById("liq-auto-val").textContent = `⚠️ ${reason} — enter manually:`;
+    document.getElementById("liq-fallback").style.display = "block";
+    document.getElementById("liq-refresh").style.display = "inline";
+    document.getElementById("liq-btn").addEventListener("click", () => {
+      const val = parseFloat(document.getElementById("liq-input").value);
+      if (!isNaN(val) && val >= 0) applyVerdict(val);
+    });
+    document.getElementById("liq-input").addEventListener("keydown", e => {
+      if (e.key === "Enter") {
+        const val = parseFloat(document.getElementById("liq-input").value);
+        if (!isNaN(val) && val >= 0) applyVerdict(val);
+      }
+    });
+  }
 
-  document.getElementById("liq-input").addEventListener("keydown", function(e) {
-    if (e.key === "Enter") check();
-  });
+  async function fetchLiq() {
+    document.getElementById("liq-auto-val").textContent = "⏳ fetching…";
+    document.getElementById("liq-verdict").textContent = "";
+    document.getElementById("liq-fallback").style.display = "none";
+
+    // CoinGlass API endpoint for futures/liquidation data
+    const TARGET = "https://open-api.coinglass.com/public/v2/liquidation_history?symbol=BTC&time_type=h24";
+    const PROXY  = "https://corsproxy.io/?" + encodeURIComponent(TARGET);
+
+    try {
+      const res  = await fetch(PROXY);
+      const json = await res.json();
+
+      // CoinGlass open API returns: data.list with buyLiquidationUsd + sellLiquidationUsd
+      // OR the Derivatives overview endpoint returns aggregateLiquidationUsd
+      let val = null;
+
+      if (json?.data) {
+        // Try aggregate field first
+        if (json.data.aggregateLiquidationUsd != null) {
+          val = Math.round(json.data.aggregateLiquidationUsd / 1e6);
+        }
+        // Try list sum fallback
+        else if (Array.isArray(json.data.list)) {
+          const total = json.data.list.reduce((s, r) =>
+            s + (r.buyLiquidationUsd || 0) + (r.sellLiquidationUsd || 0), 0);
+          val = Math.round(total / 1e6);
+        }
+      }
+
+      if (val !== null && val >= 0) {
+        applyVerdict(val);
+      } else {
+        throw new Error("unexpected data shape");
+      }
+
+    } catch (err) {
+      // Second attempt: scrape the Derivatives page HTML and parse the BTC row
+      try {
+        const PAGE  = "https://www.coinglass.com/";
+        const PROXY2 = "https://corsproxy.io/?" + encodeURIComponent(PAGE);
+        const html  = await (await fetch(PROXY2)).text();
+
+        // Look for pattern like $123.45M or $1.23B next to BTC in the liquidation column
+        // CoinGlass renders numbers like "123.45M" or "1.23B"
+        const match = html.match(/BTC[\s\S]{0,2000}?(\d+\.?\d*)\s*([MB])\s*<\/td>/i);
+        if (match) {
+          let val = parseFloat(match[1]);
+          if (match[2].toUpperCase() === "B") val *= 1000;
+          applyVerdict(Math.round(val));
+        } else {
+          throw new Error("parse failed");
+        }
+      } catch {
+        showFallback("Auto-fetch failed");
+      }
+    }
+  }
+
+  fetchLiq();
+  document.getElementById("liq-refresh").addEventListener("click", fetchLiq);
 })();
 </script>
 
