@@ -1,8 +1,21 @@
 {
   "date": "2026-06-11",
-  "checked_at": "2026-06-11T00:06:58Z",
-  "skip": false,
-  "event_count": 0,
-  "events": [],
-  "summary": "No FOMC/CPI/NFP/Fed Speech today \u2014 PROCEED"
+  "checked_at": "2026-06-11T14:09:17Z",
+  "skip": true,
+  "event_count": 2,
+  "events": [
+    {
+      "time": "1:30pm",
+      "currency": "USD",
+      "impact": "HIGH",
+      "event": "Core PPI m/m"
+    },
+    {
+      "time": "1:30pm",
+      "currency": "USD",
+      "impact": "HIGH",
+      "event": "PPI m/m"
+    }
+  ],
+  "summary": "2 kill-list event(s) found \u2014 SKIP TRADE"
 }
