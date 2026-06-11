@@ -1,33 +1,8 @@
 {
-  "date": "2026-06-10",
-  "checked_at": "2026-06-10T00:04:04Z",
-  "skip": true,
-  "event_count": 4,
-  "events": [
-    {
-      "time": "5:30am",
-      "currency": "USD",
-      "impact": "HIGH",
-      "event": "Core CPI m/m"
-    },
-    {
-      "time": "5:30am",
-      "currency": "USD",
-      "impact": "HIGH",
-      "event": "Core CPI y/y"
-    },
-    {
-      "time": "5:30am",
-      "currency": "USD",
-      "impact": "HIGH",
-      "event": "CPI m/m"
-    },
-    {
-      "time": "5:30am",
-      "currency": "USD",
-      "impact": "HIGH",
-      "event": "CPI y/y"
-    }
-  ],
-  "summary": "4 kill-list event(s) found \u2014 SKIP TRADE"
+  "date": "2026-06-11",
+  "checked_at": "2026-06-11T00:06:58Z",
+  "skip": false,
+  "event_count": 0,
+  "events": [],
+  "summary": "No FOMC/CPI/NFP/Fed Speech today \u2014 PROCEED"
 }
