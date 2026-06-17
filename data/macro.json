@@ -1,8 +1,27 @@
 {
-  "date": "2026-06-16",
-  "checked_at": "2026-06-16T00:21:11Z",
-  "skip": false,
-  "event_count": 0,
-  "events": [],
-  "summary": "No FOMC/CPI/NFP/Fed Speech today \u2014 PROCEED"
+  "date": "2026-06-17",
+  "checked_at": "2026-06-17T00:10:10Z",
+  "skip": true,
+  "event_count": 3,
+  "events": [
+    {
+      "time": "2:00pm",
+      "currency": "USD",
+      "impact": "HIGH",
+      "event": "FOMC Economic Projections"
+    },
+    {
+      "time": "2:00pm",
+      "currency": "USD",
+      "impact": "HIGH",
+      "event": "FOMC Statement"
+    },
+    {
+      "time": "2:30pm",
+      "currency": "USD",
+      "impact": "HIGH",
+      "event": "FOMC Press Conference"
+    }
+  ],
+  "summary": "3 kill-list event(s) found \u2014 SKIP TRADE"
 }
