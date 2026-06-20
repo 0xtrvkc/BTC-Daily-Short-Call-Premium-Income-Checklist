@@ -20,23 +20,37 @@
 <!-- ============================================================
   PALETTE — CAN EDIT
   Every visual in this app pulls from these 4 shades. Default is
-  the original Game Boy DMG green. Want true grayscale (the
-  "Game Boy Pocket" look) permanently instead? Comment out the
-  green block below and uncomment the gray block — nothing else
-  in the file needs to change.
+  a softened, desaturated Game Boy green — same 4-step ramp, but
+  tuned for comfortable extended reading (the original DMG green
+  is very saturated yellow-green, which sits near the peak of the
+  eye's luminosity curve and reads as "neon"/fatiguing over a full
+  screen). Want the punchier classic neon look back, or true
+  grayscale ("Game Boy Pocket")? Comment out the active block and
+  uncomment one of the alternatives below — nothing else needs to
+  change.
 
   There is ALSO a live 🎮 button on the page (see THEME TOGGLE
   module, just inside <body>) that flips data-theme="pocket" on
-  <html> at runtime without touching any code — that's the
-  second block below, separate from this permanent default.
+  <html> at runtime without touching any code.
 ============================================================ -->
 <style>
   :root {
-    /* --- Game Boy DMG green (default) --------------------- */
-    --gb-1: #9bbc0f;   /* lightest — screen background          */
-    --gb-2: #8bac0f;   /* light    — panels, header bars         */
-    --gb-3: #306230;   /* dark     — mid accents, dim text       */
-    --gb-4: #0f380f;   /* darkest  — borders, primary text       */
+    /* --- Soft Game Boy green (default, eye-friendly) -------
+       Same hue across all 4 steps (no yellow/green hue-clash),
+       lower saturation, capped brightness on the background. */
+    --gb-1: #b6d1a9;   /* lightest — screen background          */
+    --gb-2: #7ead67;   /* light    — panels, header bars         */
+    --gb-3: #456336;   /* dark     — mid accents, dim text       */
+    --gb-4: #1e2b17;   /* darkest  — borders, primary text       */
+
+    /* --- Classic neon DMG green — uncomment for the original
+       punchier high-contrast look (better in bright sunlight,
+       harder on the eyes for long sessions)
+    --gb-1: #9bbc0f;
+    --gb-2: #8bac0f;
+    --gb-3: #306230;
+    --gb-4: #0f380f;
+    --------------------------------------------------------- */
 
     /* --- Game Boy Pocket grayscale — uncomment to use instead
     --gb-1: #e8e8e0;
@@ -95,7 +109,7 @@
     pointer-events: none;
     background: repeating-linear-gradient(to bottom, rgba(0,0,0,.06) 0px, rgba(0,0,0,.06) 1px, transparent 1px, transparent 3px);
     mix-blend-mode: multiply;
-    opacity: .5;
+    opacity: .25;
     z-index: 1000;
   }
 
@@ -142,8 +156,8 @@
     flex-shrink: 0;
   }
   .status-led.is-go   { background: var(--led-go);   box-shadow: 0 0 6px 2px var(--led-go); }
-  .status-led.is-skip { background: var(--led-skip); box-shadow: 0 0 6px 2px var(--led-skip); animation: ledBlink 1s steps(2,start) infinite; }
-  @keyframes ledBlink { 50% { opacity: .3; } }
+  .status-led.is-skip { background: var(--led-skip); box-shadow: 0 0 6px 2px var(--led-skip); animation: ledBlink 1.6s ease-in-out infinite; }
+  @keyframes ledBlink { 50% { opacity: .45; } }
 
   /* ── Stats grid ────────────────────────────────────────── */
   .stats-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; margin-bottom: 10px; }
@@ -169,8 +183,8 @@
   .go-alert   { background: var(--gb-2); color: var(--gb-4); }
   .skip-alert { background: var(--gb-4); color: var(--gb-1); border-color: var(--gb-1); border-style: dashed; }
   .go-alert.visible   { display: block; }
-  .skip-alert.visible { display: block; animation: skipPulse 1.1s steps(2,start) infinite; }
-  @keyframes skipPulse { 50% { opacity: .6; } }
+  .skip-alert.visible { display: block; animation: skipPulse 1.6s ease-in-out infinite; }
+  @keyframes skipPulse { 50% { opacity: .75; } }
 
   /* ── Checklist items ───────────────────────────────────── */
   .checklist-item {
