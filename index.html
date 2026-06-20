@@ -3,84 +3,300 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>BTC Daily Short Call Checklist</title>
-<link rel="stylesheet" href="https://jdan.github.io/98.css/style.css">
+<title>🎮 BTC Daily Short Call Checklist</title>
+
+<!-- ============================================================
+  FONTS
+  Press Start 2P → headers / labels / buttons (short text only —
+                   it's wide per-character, bad for paragraphs)
+  Pixelify Sans  → all body copy (readable pixel-style text)
+  VT323          → monospace data: formula boxes, auto-results,
+                   the LCD-terminal-style numbers
+============================================================ -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Pixelify+Sans:wght@400;500;600;700&family=VT323&display=swap" rel="stylesheet">
+
+<!-- ============================================================
+  PALETTE — CAN EDIT
+  Every visual in this app pulls from these 4 shades. Default is
+  the original Game Boy DMG green. Want true grayscale (the
+  "Game Boy Pocket" look) permanently instead? Comment out the
+  green block below and uncomment the gray block — nothing else
+  in the file needs to change.
+
+  There is ALSO a live 🎮 button on the page (see THEME TOGGLE
+  module, just inside <body>) that flips data-theme="pocket" on
+  <html> at runtime without touching any code — that's the
+  second block below, separate from this permanent default.
+============================================================ -->
+<style>
+  :root {
+    /* --- Game Boy DMG green (default) --------------------- */
+    --gb-1: #9bbc0f;   /* lightest — screen background          */
+    --gb-2: #8bac0f;   /* light    — panels, header bars         */
+    --gb-3: #306230;   /* dark     — mid accents, dim text       */
+    --gb-4: #0f380f;   /* darkest  — borders, primary text       */
+
+    /* --- Game Boy Pocket grayscale — uncomment to use instead
+    --gb-1: #e8e8e0;
+    --gb-2: #b0b0a8;
+    --gb-3: #5c5c56;
+    --gb-4: #181818;
+    --------------------------------------------------------- */
+
+    /* device shell colors — NOT part of the 4-shade screen rule,
+       these model the plastic housing + the hardware power LED,
+       same as real DMG hardware (grey shell, one red LED) */
+    --shell:      #5b5d4f;
+    --shell-dark: #2e2f27;
+    --led-go:     #4ce24c;
+    --led-skip:   #ff4d3d;
+    --led-off:    #232419;
+  }
+
+  /* runtime override for the floating 🎮 toggle — do not delete
+     even if you remove the toggle button, this rule is harmless
+     when unused */
+  html[data-theme="pocket"] {
+    --gb-1: #e8e8e0;
+    --gb-2: #b0b0a8;
+    --gb-3: #5c5c56;
+    --gb-4: #181818;
+  }
+</style>
 
 <!-- ============================================================
   STYLES — DO NOT EDIT
-  Core visual engine. Changing these breaks layout and tags.
-  If you need custom styles, add them in the USER STYLES block below.
+  Core visual engine. Changing selectors/classes here breaks
+  layout and tags. To retheme colors, edit the PALETTE block
+  above instead. For one-off tweaks, use USER STYLES below.
 ============================================================ -->
 <style>
+  *, *::before, *::after { box-sizing: border-box; }
+
   body {
-    zoom: 1.3;
-    background: #008080;
-    font-family: 'MS Sans Serif', Arial, sans-serif;
-    font-size: 11px;
-    padding: 16px;
+    background: var(--shell-dark);
+    color: var(--gb-4);
+    font-family: 'Pixelify Sans', 'Press Start 2P', monospace;
+    font-size: 15px;
+    line-height: 1.55;
+    padding: 8px;
     min-height: 100vh;
+    -webkit-text-size-adjust: 100%;
+    -webkit-tap-highlight-color: transparent;
   }
-  .main-window { max-width: 780px; margin: 0 auto; }
-  .window { margin-bottom: 12px; }
-  .window-body { padding: 12px 16px; }
-  .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-bottom: 4px; }
-  .stat-box { background: #c0c0c0; border: 2px inset #888; padding: 6px 8px; text-align: center; }
-  .stat-label { font-size: 10px; color: #444; margin-bottom: 2px; }
-  .stat-val { font-size: 15px; font-weight: bold; color: #000080; }
-  .progress-container { margin: 8px 0 4px; }
-  .progress-bar-outer { border: 2px inset #888; height: 16px; background: #fff; position: relative; overflow: hidden; }
-  .progress-bar-inner { height: 100%; background: #000080; width: 0%; transition: width 0.3s; }
-  .progress-label { position: absolute; top: 0; left: 0; right: 0; bottom: 0; display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: bold; color: #000; }
-  .checklist-item { border: 1px solid #888; margin-bottom: 8px; background: #fff; }
-  .item-header { display: flex; align-items: flex-start; gap: 8px; padding: 8px 10px; cursor: pointer; background: #d4d0c8; border-bottom: 1px solid #888; user-select: none; }
-  .item-header:hover { background: #e0ddd5; }
-  .item-header input[type="checkbox"] { margin-top: 1px; cursor: pointer; flex-shrink: 0; }
-  .item-title { font-weight: bold; font-size: 11px; flex: 1; }
-  .item-step { color: #808080; font-size: 10px; flex-shrink: 0; }
-  .item-body { padding: 10px 12px; font-size: 11px; line-height: 1.7; }
+
+  /* faint LCD scanline texture over the whole device — subtle on purpose */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    background: repeating-linear-gradient(to bottom, rgba(0,0,0,.06) 0px, rgba(0,0,0,.06) 1px, transparent 1px, transparent 3px);
+    mix-blend-mode: multiply;
+    opacity: .5;
+    z-index: 1000;
+  }
+
+  a { color: var(--gb-4); text-decoration: underline dotted; }
+  a:active { color: var(--gb-3); }
+  :focus-visible { outline: 3px solid var(--led-go); outline-offset: 2px; }
+  @media (prefers-reduced-motion: reduce) {
+    * { animation: none !important; transition: none !important; }
+  }
+
+  /* ── Layout shell ──────────────────────────────────────── */
+  .main-window { max-width: 760px; margin: 0 auto; }
+
+  .window {
+    margin-bottom: 14px;
+    background: var(--gb-1);
+    border: 3px solid var(--gb-4);
+    clip-path: polygon(7px 0,calc(100% - 7px) 0,100% 7px,100% calc(100% - 7px),calc(100% - 7px) 100%,7px 100%,0 calc(100% - 7px),0 7px);
+  }
+  .title-bar {
+    background: var(--gb-4);
+    color: var(--gb-1);
+    font-family: 'Press Start 2P', monospace;
+    font-size: 11px;
+    letter-spacing: .5px;
+    line-height: 1.6;
+    padding: 11px 12px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+  }
+  .title-bar-text { flex: 1; }
+  .title-bar-controls { display: flex; align-items: center; gap: 6px; flex-shrink: 0; }
+  .window-body { padding: 14px 14px 16px; }
+  .app-subtitle { font-size: 12.5px; opacity: .8; margin-bottom: 12px; letter-spacing: .2px; }
+
+  /* ── Status LED (hardware accent, not "screen content") ──── */
+  .status-led {
+    width: 13px; height: 13px;
+    border-radius: 50%;
+    background: var(--led-off);
+    box-shadow: inset 0 0 2px rgba(0,0,0,.7);
+    flex-shrink: 0;
+  }
+  .status-led.is-go   { background: var(--led-go);   box-shadow: 0 0 6px 2px var(--led-go); }
+  .status-led.is-skip { background: var(--led-skip); box-shadow: 0 0 6px 2px var(--led-skip); animation: ledBlink 1s steps(2,start) infinite; }
+  @keyframes ledBlink { 50% { opacity: .3; } }
+
+  /* ── Stats grid ────────────────────────────────────────── */
+  .stats-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; margin-bottom: 10px; }
+  .stat-box { background: var(--gb-2); border: 2px solid var(--gb-4); padding: 9px 6px; text-align: center; }
+  .stat-label { font-size: 10px; text-transform: uppercase; letter-spacing: .4px; color: var(--gb-4); margin-bottom: 4px; font-weight: 600; }
+  .stat-val { font-family: 'Press Start 2P', monospace; font-size: 14px; color: var(--gb-4); }
+
+  /* ── Progress bar ──────────────────────────────────────── */
+  .progress-container { margin: 10px 0 6px; }
+  .progress-title { font-size: 12px; margin-bottom: 6px; font-weight: 600; }
+  .progress-bar-outer { border: 3px solid var(--gb-4); height: 22px; background: var(--gb-1); position: relative; overflow: hidden; }
+  .progress-bar-inner { height: 100%; background: var(--gb-3); width: 0%; transition: width .5s steps(12); }
+  .progress-label {
+    position: absolute; inset: 0;
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'VT323', monospace; font-size: 15px; font-weight: 700;
+    color: var(--gb-4);
+    text-shadow: 1px 0 var(--gb-1), -1px 0 var(--gb-1), 0 1px var(--gb-1), 0 -1px var(--gb-1);
+  }
+
+  /* ── Alerts ────────────────────────────────────────────── */
+  .skip-alert, .go-alert { margin-top: 10px; padding: 10px 12px; font-weight: 700; font-size: 13.5px; display: none; border: 3px solid var(--gb-4); }
+  .go-alert   { background: var(--gb-2); color: var(--gb-4); }
+  .skip-alert { background: var(--gb-4); color: var(--gb-1); border-color: var(--gb-1); border-style: dashed; }
+  .go-alert.visible   { display: block; }
+  .skip-alert.visible { display: block; animation: skipPulse 1.1s steps(2,start) infinite; }
+  @keyframes skipPulse { 50% { opacity: .6; } }
+
+  /* ── Checklist items ───────────────────────────────────── */
+  .checklist-item {
+    border: 3px solid var(--gb-4);
+    margin-bottom: 12px;
+    background: var(--gb-1);
+    clip-path: polygon(7px 0,calc(100% - 7px) 0,100% 7px,100% calc(100% - 7px),calc(100% - 7px) 100%,7px 100%,0 calc(100% - 7px),0 7px);
+  }
+  .item-header { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; padding: 12px; cursor: pointer; background: var(--gb-2); border-bottom: 2px solid var(--gb-4); user-select: none; }
+  .item-header:active { background: var(--gb-3); }
+  .item-title { font-weight: 600; font-size: 14.5px; flex: 1; min-width: 0; }
+  .item-step { color: var(--gb-4); opacity: .75; font-size: 11.5px; flex-shrink: 0; text-align: right; }
+  .item-step a { color: inherit; }
+  .expand-btn {
+    width: 28px; height: 28px; flex-shrink: 0; margin-left: auto;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 13px; cursor: pointer; background: var(--gb-1); border: 2px solid var(--gb-4);
+  }
+  .item-body { padding: 14px 14px 16px; font-size: 14.5px; line-height: 1.65; }
   .item-body.collapsed { display: none; }
-  .skip-trigger { margin-top: 10px; padding: 7px 10px; background: #fff0f0; border: 1px solid #cc0000; display: flex; align-items: center; gap: 8px; }
-  .skip-trigger label { cursor: pointer; font-weight: bold; color: #880000; }
-  .auto-result { margin-top: 10px; padding: 7px 10px; background: #f0f4ff; border: 1px solid #000080; font-size: 10px; }
-  .auto-result .auto-label { font-weight: bold; color: #000080; margin-bottom: 4px; }
-  .auto-result .auto-value { font-family: 'Courier New', monospace; color: #222; }
-  .rule-row { display: flex; gap: 6px; align-items: flex-start; margin: 3px 0; }
-  .rule-row .arrow { flex-shrink: 0; font-weight: bold; }
-  .tag { display: inline-block; padding: 1px 7px; font-size: 10px; font-weight: bold; border: 1px solid; margin: 1px 2px; }
-  .tag-go   { background: #00aa00; color: #fff; border-color: #006600; }
-  .tag-stop { background: #cc0000; color: #fff; border-color: #880000; }
-  .tag-warn { background: #cc8800; color: #fff; border-color: #885500; }
-  .tag-info { background: #000080; color: #fff; border-color: #000055; }
-  .checked-item .item-header { background: #b0c8b0; }
-  .checked-item .item-title { text-decoration: line-through; color: #555; }
-  .skip-alert, .go-alert { margin-top: 8px; padding: 8px 12px; font-weight: bold; display: none; }
-  .skip-alert { background: #ffcccc; border: 2px solid #cc0000; color: #880000; }
-  .go-alert   { background: #ccffcc; border: 2px solid #006600; color: #004400; }
-  .skip-alert.visible, .go-alert.visible { display: block; }
-  .expand-btn { float: right; font-size: 9px; cursor: pointer; background: #c0c0c0; border: 1px outset #fff; padding: 0 4px; line-height: 14px; }
-  .formula-box { background: #ffffc0; border: 1px solid #888; padding: 6px 10px; margin: 6px 0; font-family: 'Courier New', monospace; font-size: 10px; white-space: pre; }
-  .tool-link { color: #000080; font-weight: bold; }
-  .note { color: #555; font-style: italic; font-size: 10px; margin-top: 4px; }
-  .title-bar-text { font-size: 12px; }
-  .sticky-note { position: fixed; top: 16px; right: 16px; width: 210px; z-index: 999; font-size: 10px; box-shadow: 3px 3px 0 #000; }
-  .sticky-note .title-bar { cursor: move; }
-  .sticky-note .title-bar-text { font-size: 10px; }
-  .sticky-note table { width: 100%; border-collapse: collapse; background: #fff; }
-  .sticky-note th { background: #000080; color: #fff; padding: 3px 6px; text-align: left; font-size: 10px; font-weight: bold; }
-  .sticky-note td { padding: 4px 6px; border-bottom: 1px solid #d4d0c8; vertical-align: top; line-height: 1.5; }
+
+  /* custom pixel checkbox */
+  input[type="checkbox"] {
+    appearance: none; -webkit-appearance: none;
+    width: 24px; height: 24px;
+    border: 3px solid var(--gb-4);
+    background: var(--gb-1);
+    position: relative;
+    cursor: pointer;
+    flex-shrink: 0;
+  }
+  input[type="checkbox"]:checked { background: var(--gb-4); }
+  input[type="checkbox"]:checked::after { content: ''; position: absolute; inset: 4px; background: var(--gb-1); }
+
+  /* ── Skip trigger / Auto result ────────────────────────── */
+  .skip-trigger { margin-top: 12px; padding: 10px 12px; background: var(--gb-3); border: 2px dashed var(--gb-4); display: flex; align-items: center; gap: 10px; }
+  .skip-trigger label { cursor: pointer; font-weight: 700; color: var(--gb-1); font-size: 13.5px; }
+  .auto-result { margin-top: 12px; padding: 10px 12px; background: var(--gb-2); border: 2px solid var(--gb-4); font-size: 12.5px; }
+  .auto-result .auto-label { font-family: 'Press Start 2P', monospace; font-size: 9px; letter-spacing: .3px; color: var(--gb-4); margin-bottom: 6px; }
+  .auto-result .auto-value { font-family: 'VT323', monospace; font-size: 16px; color: var(--gb-4); }
+
+  /* ── Rule rows & tags ───────────────────────────────────── */
+  .rule-row { display: flex; gap: 7px; align-items: flex-start; margin: 5px 0; }
+  .rule-row .arrow { flex-shrink: 0; font-weight: 700; }
+  .tag { display: inline-block; padding: 2px 8px; font-size: 11px; font-weight: 700; border: 2px solid var(--gb-4); margin: 1px 2px; letter-spacing: .2px; }
+  .tag-go   { background: var(--gb-2); color: var(--gb-4); }
+  .tag-go::before   { content: '▸ '; }
+  .tag-stop { background: var(--gb-4); color: var(--gb-1); border-color: var(--gb-1); }
+  .tag-stop::before { content: '✕ '; }
+  .tag-warn { background: var(--gb-2); color: var(--gb-4); border-style: dashed; }
+  .tag-warn::before { content: '▲ '; }
+  .tag-info { background: var(--gb-1); color: var(--gb-4); border-style: double; border-width: 3px; }
+  .tag-info::before { content: '● '; }
+  .checked-item .item-header { background: var(--gb-3); }
+  .checked-item .item-title  { text-decoration: line-through; color: var(--gb-2); }
+
+  /* ── Formula boxes / notes / links ─────────────────────── */
+  .formula-box {
+    background: var(--gb-1); border: 2px solid var(--gb-4);
+    padding: 10px 12px; margin: 8px 0;
+    font-family: 'VT323', monospace; font-size: 16px; line-height: 1.35;
+    white-space: pre; overflow-x: auto; -webkit-overflow-scrolling: touch;
+  }
+  .tool-link { font-weight: 700; text-decoration: underline; }
+  .note { color: var(--gb-3); font-style: italic; font-size: 12px; margin-top: 6px; }
+  .gb-footer { text-align: center; color: var(--gb-1); font-size: 11px; margin-top: 10px; opacity: .85; padding: 0 8px; }
+
+  /* mini buttons/inputs used by automation widgets (e.g. module 6B) */
+  .gb-mini-btn {
+    font-family: 'Pixelify Sans', monospace; font-size: 13px; font-weight: 700;
+    padding: 6px 12px; min-height: 34px; cursor: pointer;
+    background: var(--gb-1); color: var(--gb-4); border: 2px solid var(--gb-4);
+  }
+  .gb-mini-btn:active { background: var(--gb-3); color: var(--gb-1); }
+  .gb-mini-input {
+    width: 92px; margin: 0 6px;
+    font-family: 'VT323', monospace; font-size: 16px;
+    border: 2px solid var(--gb-4); background: var(--gb-1); color: var(--gb-4);
+    padding: 6px 8px; min-height: 34px;
+  }
+
+  /* ── Sticky schedule — collapsible accordion, normal flow ──
+     (not fixed/floating — easier to use and never covers content
+     on a small screen) */
+  .sticky-note.window { margin-bottom: 14px; }
+  .sticky-toggle-icon { width: 22px; height: 22px; display: flex; align-items: center; justify-content: center; background: var(--gb-1); color: var(--gb-4); border: 2px solid var(--gb-1); font-size: 11px; flex-shrink: 0; }
+  .sticky-note table { width: 100%; border-collapse: collapse; background: var(--gb-1); font-size: 12.5px; }
+  .sticky-note th { background: var(--gb-3); color: var(--gb-1); padding: 7px 8px; text-align: left; font-size: 10px; font-family: 'Press Start 2P', monospace; letter-spacing: .3px; }
+  .sticky-note td { padding: 8px 8px; border-bottom: 2px solid var(--gb-2); vertical-align: top; line-height: 1.5; }
   .sticky-note tr:last-child td { border-bottom: none; }
-  .sticky-note .time-col { color: #000080; font-weight: bold; white-space: nowrap; width: 70px; }
-  .sticky-note .action-col { color: #222; }
-  .sticky-note tr.now { background: #ffffc0; }
-  .sticky-note .dot-go   { color: #006600; font-weight: bold; }
-  .sticky-note .dot-warn { color: #cc8800; font-weight: bold; }
-  .sticky-note .dot-stop { color: #cc0000; font-weight: bold; }
+  .sticky-note .time-col { font-weight: 700; white-space: nowrap; width: 78px; font-family: 'VT323', monospace; font-size: 14.5px; }
+  .sticky-note .action-col { color: var(--gb-4); }
+  .sticky-note tr.now { background: var(--gb-2); }
+  .sticky-note tr.now td { font-weight: 700; }
+
+  /* ── Floating theme toggle ─────────────────────────────── */
+  .theme-toggle {
+    position: fixed; right: 14px; bottom: 14px; z-index: 500;
+    width: 52px; height: 52px; border-radius: 50%;
+    background: var(--shell); border: 3px solid var(--shell-dark);
+    color: var(--gb-1); font-size: 20px;
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer; box-shadow: 0 3px 0 var(--shell-dark);
+  }
+  .theme-toggle:active { transform: translateY(2px); box-shadow: none; }
+
+  /* ── Responsive ─────────────────────────────────────────── */
+  @media (max-width: 420px) {
+    .item-step { flex-basis: 100%; margin-left: 34px; text-align: left; }
+  }
+  @media (min-width: 480px) {
+    .stats-grid { grid-template-columns: repeat(4, 1fr); }
+  }
+  @media (min-width: 700px) {
+    body { padding: 24px; }
+    .window-body { padding: 18px 20px; }
+    .stat-val { font-size: 17px; }
+    .item-title { font-size: 15px; }
+    .title-bar { font-size: 12px; }
+  }
 </style>
 
 <!-- ============================================================
   USER STYLES — CAN EDIT
-  Add your own CSS overrides here without touching the block above.
-  Example: change background, font size, highlight colors, etc.
+  Add your own CSS overrides here without touching the blocks
+  above. Example: nudge a font size, tweak spacing, add a class.
 ============================================================ -->
 <style>
   /* your custom overrides here */
@@ -90,18 +306,45 @@
 <body>
 
 <!-- ============================================================
+  THEME TOGGLE — CAN EDIT / SAFE TO DELETE
+  Floating 🎮 button that flips the whole app between the default
+  Game Boy DMG green palette and a grayscale "Pocket" palette by
+  toggling data-theme on <html>. Purely decorative — delete this
+  button + its tiny script right below it and nothing else breaks.
+============================================================ -->
+<button class="theme-toggle" id="theme-toggle" onclick="toggleTheme()" aria-label="Switch color palette" title="Switch green / grayscale palette">🎮</button>
+<script>
+(function () {
+  if (localStorage.getItem('gb-theme') === 'pocket') {
+    document.documentElement.setAttribute('data-theme', 'pocket');
+  }
+})();
+function toggleTheme() {
+  const html = document.documentElement;
+  const goingPocket = html.getAttribute('data-theme') !== 'pocket';
+  if (goingPocket) html.setAttribute('data-theme', 'pocket');
+  else html.removeAttribute('data-theme');
+  localStorage.setItem('gb-theme', goingPocket ? 'pocket' : 'dmg');
+}
+</script>
+<!-- END THEME TOGGLE -->
+
+
+<!-- ============================================================
   STICKY SCHEDULE NOTE — CAN EDIT label text only
   Do NOT rename row IDs (row-checks, row-entry, etc.)
   The JS timer highlights rows by ID — renaming breaks highlighting.
+  Mobile note: this lives in normal page flow (not fixed/floating)
+  and starts collapsed — tap the header bar to expand/collapse.
 ============================================================ -->
 <div class="sticky-note window" id="sticky">
-  <div class="title-bar" id="sticky-drag">
-    <div class="title-bar-text">⏱ Daily Schedule (TH)</div>
+  <div class="title-bar" id="sticky-drag" onclick="toggleSticky()">
+    <div class="title-bar-text">⏱ DAILY SCHEDULE (TH)</div>
     <div class="title-bar-controls">
-      <button aria-label="Minimize" onclick="toggleSticky()"></button>
+      <span class="sticky-toggle-icon" id="sticky-toggle-icon" aria-hidden="true">▾</span>
     </div>
   </div>
-  <table id="sticky-table">
+  <table id="sticky-table" style="display:none">
     <thead>
       <tr><th>Time (TH)</th><th>Action</th></tr>
     </thead>
@@ -116,28 +359,28 @@
       </tr>
       <tr id="row-funding1">
         <td class="time-col">07:00</td>
-        <td class="action-col"><span class="dot-warn">●</span> Bybit funding charged</td>
+        <td class="action-col"><span class="dot-warn">▲</span> Bybit funding charged</td>
       </tr>
       <tr id="row-midday">
         <td class="time-col">~12:00</td>
-        <td class="action-col"><span class="dot-warn">●</span> Optional check · Early close if 50–70% profit</td>
+        <td class="action-col"><span class="dot-warn">▲</span> Optional check · Early close if 50–70% profit</td>
       </tr>
       <tr id="row-pinrisk">
         <td class="time-col">13:30</td>
-        <td class="action-col"><span class="dot-stop">●</span> PIN RISK EXIT — close all positions now</td>
+        <td class="action-col"><span class="dot-stop">■</span> PIN RISK EXIT — close all positions now</td>
       </tr>
       <tr id="row-twap">
         <td class="time-col">14:30–15:00</td>
-        <td class="action-col"><span class="dot-warn">●</span> TWAP window · Settlement price forming</td>
+        <td class="action-col"><span class="dot-warn">▲</span> TWAP window · Settlement price forming</td>
       </tr>
       <tr id="row-settle">
         <td class="time-col">15:00</td>
-        <td class="action-col"><span class="dot-stop">●</span> Settlement (passive — just monitor)<br><span style="color:#555;font-size:9px;">+ Bybit funding charged · No action needed</span></td>
+        <td class="action-col"><span class="dot-stop">■</span> Settlement (passive — just monitor)<br><span style="opacity:.7;font-size:11px;">+ Bybit funding charged · No action needed</span></td>
       </tr>
       <tr id="row-funding2" style="display:none"></tr>
       <tr id="row-funding3">
         <td class="time-col">23:00</td>
-        <td class="action-col"><span class="dot-warn">●</span> Bybit funding charged</td>
+        <td class="action-col"><span class="dot-warn">▲</span> Bybit funding charged</td>
       </tr>
     </tbody>
   </table>
@@ -155,14 +398,13 @@
   ============================================================ -->
   <div class="window">
     <div class="title-bar">
-      <div class="title-bar-text">📈 BTC Daily Short Call — Premium Income Checklist</div>
+      <div class="title-bar-text">📈 BTC SHORT CALL</div>
       <div class="title-bar-controls">
-        <button aria-label="Minimize"></button>
-        <button aria-label="Maximize"></button>
-        <button aria-label="Close"></button>
+        <span class="status-led" id="status-led" title="Setup status" aria-hidden="true"></span>
       </div>
     </div>
     <div class="window-body">
+      <div class="app-subtitle">Daily Premium Income Checklist</div>
       <div class="stats-grid">
         <div class="stat-box"><div class="stat-label">Win Rate (with SL)</div><div class="stat-val">92.8%</div></div>
         <div class="stat-box"><div class="stat-label">Target Delta</div><div class="stat-val">0.13–0.15</div></div>
@@ -170,7 +412,7 @@
         <div class="stat-box"><div class="stat-label">Target Income</div><div class="stat-val">$20/day</div></div>
       </div>
       <div class="progress-container">
-        <div style="font-size:10px; margin-bottom:3px;">Overall progress</div>
+        <div class="progress-title">Overall progress</div>
         <div class="progress-bar-outer">
           <div class="progress-bar-inner" id="progress-fill"></div>
           <div class="progress-label" id="progress-label">0 / 16 complete</div>
@@ -188,7 +430,7 @@
   ============================================================ -->
   <div class="window">
     <div class="title-bar"><div class="title-bar-text">Part A — Pre-Trade Checks (Complete before entry)</div></div>
-    <div class="window-body" style="padding:10px 14px;">
+    <div class="window-body">
 
 
       <!-- //////////  MODULE 1 — MACRO CALENDAR  ////////// -->
@@ -590,14 +832,13 @@ Real example from playbook:
   const mainCb  = document.getElementById("cb-m6b");
 
   el.innerHTML = `
-    <span style="color:#000080;font-weight:bold">Liquidation 24h ($M):</span>
-    <span id="liq-auto-val" style="font-family:'Courier New',monospace;font-size:11px;margin-left:6px">⏳ fetching…</span>
-    <button id="liq-refresh" style="font-size:10px;padding:1px 8px;cursor:pointer;margin-left:8px;display:none">↻ Refresh</button>
-    <div id="liq-verdict" style="margin-top:5px;font-family:'Courier New',monospace;font-size:11px;"></div>
-    <div id="liq-fallback" style="display:none;margin-top:6px">
-      <input type="number" id="liq-input" placeholder="e.g. 409"
-        style="width:72px;margin:0 6px;font-family:'Courier New',monospace;font-size:11px;border:2px inset #888;padding:1px 4px;">
-      <button id="liq-btn" style="font-size:10px;padding:1px 8px;cursor:pointer">Check</button>
+    <span style="font-weight:bold">Liquidation 24h ($M):</span>
+    <span id="liq-auto-val" style="font-family:'VT323',monospace;font-size:16px;margin-left:6px">⏳ fetching…</span>
+    <button id="liq-refresh" class="gb-mini-btn" style="margin-left:8px;display:none">↻ Refresh</button>
+    <div id="liq-verdict" style="margin-top:6px;font-family:'VT323',monospace;font-size:16px;"></div>
+    <div id="liq-fallback" style="display:none;margin-top:8px">
+      <input type="number" id="liq-input" placeholder="e.g. 409" class="gb-mini-input">
+      <button id="liq-btn" class="gb-mini-btn">Check</button>
     </div>
   `;
 
@@ -795,7 +1036,7 @@ NEUTRAL: Sideways range · No clear trend · MACD near zero
   ============================================================ -->
   <div class="window">
     <div class="title-bar"><div class="title-bar-text">Part B — Strike Selection</div></div>
-    <div class="window-body" style="padding:10px 14px;">
+    <div class="window-body">
 
 
       <!-- //////////  MODULE 7 — DELTA SELECTION  ////////// -->
@@ -968,7 +1209,7 @@ Pre-event / macro risk:  3.0 SD or skip</div>
   ============================================================ -->
   <div class="window">
     <div class="title-bar"><div class="title-bar-text">Part C — Risk Management (Set Before Clicking "Sell")</div></div>
-    <div class="window-body" style="padding:10px 14px;">
+    <div class="window-body">
 
 
       <!-- //////////  MODULE 11 — STOP LOSS (Index Price — v2)  ////////// -->
@@ -1071,7 +1312,7 @@ Portfolio $5,000 → Max loss = $125 → Max contracts = 1</div>
   ============================================================ -->
   <div class="window">
     <div class="title-bar"><div class="title-bar-text">Part D — Execution</div></div>
-    <div class="window-body" style="padding:10px 14px;">
+    <div class="window-body">
 
 
       <!-- //////////  MODULE 14 — ENTRY TIMING  ////////// -->
@@ -1198,7 +1439,7 @@ After closing: position fully flat, zero remaining risk.</div>
     </div>
   </div>
 
-  <div style="text-align:center; color:#fff; font-size:10px; margin-top:8px; opacity:0.8;">
+  <div class="gb-footer">
     For educational purposes only. Not financial advice. Options trading involves substantial risk of loss.
   </div>
 
@@ -1207,10 +1448,14 @@ After closing: position fully flat, zero remaining risk.</div>
 
 <!-- ============================================================
   CORE ENGINE — DO NOT EDIT
-  Handles: progress counting, skip detection, expand/collapse.
+  Handles: progress counting, skip detection, expand/collapse,
+  the status LED, and the schedule accordion.
   All functions are keyed off data-skip="true" and .checklist-item
   checkboxes, so adding/removing modules doesn't break the count
   as long as you keep the id conventions (cb-mN, item-mN).
+  Note: the old desktop mouse-drag on the schedule note was
+  removed — it doesn't work on touch and isn't needed now that
+  the schedule lives in normal page flow instead of floating.
 ============================================================ -->
 <script>
 
@@ -1233,6 +1478,13 @@ function updateProgress() {
   document.getElementById('progress-label').textContent = done + ' / ' + total + ' complete (' + pct + '%)';
   document.getElementById('skip-alert').classList.toggle('visible', skipped);
   document.getElementById('go-alert').classList.toggle('visible', done === total && !skipped);
+
+  /* status LED — mirrors the device's hardware power light */
+  const led = document.getElementById('status-led');
+  if (led) {
+    led.classList.toggle('is-skip', skipped);
+    led.classList.toggle('is-go', !skipped && done === total);
+  }
 }
 
 /* ── Module toggle (expand/collapse) ── */
@@ -1306,32 +1558,14 @@ function setModuleResult(moduleId, resultText, autoCheck, autoSkip) {
   updateProgress();
 }
 
-/* ── Sticky note: minimize ── */
-let stickyMin = false;
+/* ── Sticky note: expand/collapse (starts collapsed — see
+   style="display:none" on #sticky-table in the HTML) ── */
+let stickyMin = true;
 function toggleSticky() {
   stickyMin = !stickyMin;
   document.getElementById('sticky-table').style.display = stickyMin ? 'none' : '';
+  document.getElementById('sticky-toggle-icon').textContent = stickyMin ? '▾' : '▴';
 }
-
-/* ── Sticky note: drag ── */
-(function() {
-  const el     = document.getElementById('sticky');
-  const handle = document.getElementById('sticky-drag');
-  let dragging = false, ox = 0, oy = 0;
-  handle.addEventListener('mousedown', function(e) {
-    dragging = true;
-    ox = e.clientX - el.getBoundingClientRect().left;
-    oy = e.clientY - el.getBoundingClientRect().top;
-    e.preventDefault();
-  });
-  document.addEventListener('mousemove', function(e) {
-    if (!dragging) return;
-    el.style.left  = (e.clientX - ox) + 'px';
-    el.style.top   = (e.clientY - oy) + 'px';
-    el.style.right = 'auto';
-  });
-  document.addEventListener('mouseup', function() { dragging = false; });
-})();
 
 /* ── Sticky note: highlight current time row (Thailand UTC+7) ── */
 function highlightCurrentRow() {
