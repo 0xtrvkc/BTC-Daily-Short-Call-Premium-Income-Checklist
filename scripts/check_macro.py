@@ -31,7 +31,7 @@ HEADERS = {
 }
 
 # Only these events trigger a skip — everything else (ISM, PMI, etc.) is ignored
-KILL_LIST = ["FOMC", "CPI", "NFP", "Fed Chair", "Fed Speech", "Federal Reserve", "PPI m/m", "Core PPI m/m"]
+KILL_LIST = ["FOMC", "CPI", "NFP", "Fed Chair", "Fed Speech", "Federal Reserve", "PPI m/m", "Core PPI m/m", "Non-Farm", "Unemployment", "Earnings m/m"]
 
 # ── Helpers ───────────────────────────────────────────────────────────────────
 
