@@ -1,15 +1,8 @@
 {
-  "date": "2026-07-01",
-  "checked_at": "2026-06-30T23:55:51Z",
-  "skip": true,
-  "event_count": 1,
-  "events": [
-    {
-      "time": "8:00am",
-      "currency": "USD",
-      "impact": "HIGH",
-      "event": "Fed Chairman Warsh Speaks"
-    }
-  ],
-  "summary": "1 kill-list event(s) found \u2014 SKIP TRADE"
+  "date": "2026-07-02",
+  "checked_at": "2026-07-02T00:00:30Z",
+  "skip": false,
+  "event_count": 0,
+  "events": [],
+  "summary": "No FOMC/CPI/NFP/Fed Speech today \u2014 PROCEED"
 }
