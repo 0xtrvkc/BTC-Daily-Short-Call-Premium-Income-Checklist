@@ -1,15 +1,8 @@
 {
-  "date": "2026-07-08",
-  "checked_at": "2026-07-07T23:43:48Z",
-  "skip": true,
-  "event_count": 1,
-  "events": [
-    {
-      "time": "2:00pm",
-      "currency": "USD",
-      "impact": "HIGH",
-      "event": "FOMC Meeting Minutes"
-    }
-  ],
-  "summary": "1 kill-list event(s) found \u2014 SKIP TRADE"
+  "date": "2026-07-09",
+  "checked_at": "2026-07-08T23:58:15Z",
+  "skip": false,
+  "event_count": 0,
+  "events": [],
+  "summary": "No FOMC/CPI/NFP/Fed Speech today \u2014 PROCEED"
 }
