@@ -1,8 +1,39 @@
 {
-  "date": "2026-07-13",
-  "checked_at": "2026-07-12T23:40:39Z",
-  "skip": false,
-  "event_count": 0,
-  "events": [],
-  "summary": "No FOMC/CPI/NFP/Fed Speech today \u2014 PROCEED"
+  "date": "2026-07-14",
+  "checked_at": "2026-07-13T23:40:33Z",
+  "skip": true,
+  "event_count": 5,
+  "events": [
+    {
+      "time": "5:30am",
+      "currency": "USD",
+      "impact": "HIGH",
+      "event": "Core CPI m/m"
+    },
+    {
+      "time": "5:30am",
+      "currency": "USD",
+      "impact": "HIGH",
+      "event": "Core CPI y/y"
+    },
+    {
+      "time": "5:30am",
+      "currency": "USD",
+      "impact": "HIGH",
+      "event": "CPI m/m"
+    },
+    {
+      "time": "5:30am",
+      "currency": "USD",
+      "impact": "HIGH",
+      "event": "CPI y/y"
+    },
+    {
+      "time": "7:00am",
+      "currency": "USD",
+      "impact": "HIGH",
+      "event": "Fed Chairman Warsh Testifies"
+    }
+  ],
+  "summary": "5 kill-list event(s) found \u2014 SKIP TRADE"
 }
