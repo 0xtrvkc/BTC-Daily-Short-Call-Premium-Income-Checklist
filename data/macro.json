@@ -1,39 +1,27 @@
 {
-  "date": "2026-07-14",
-  "checked_at": "2026-07-13T23:40:33Z",
+  "date": "2026-07-15",
+  "checked_at": "2026-07-14T23:40:08Z",
   "skip": true,
-  "event_count": 5,
+  "event_count": 3,
   "events": [
     {
-      "time": "5:30am",
+      "time": "8:30am",
       "currency": "USD",
       "impact": "HIGH",
-      "event": "Core CPI m/m"
+      "event": "Core PPI m/m"
     },
     {
-      "time": "5:30am",
+      "time": "8:30am",
       "currency": "USD",
       "impact": "HIGH",
-      "event": "Core CPI y/y"
+      "event": "PPI m/m"
     },
     {
-      "time": "5:30am",
-      "currency": "USD",
-      "impact": "HIGH",
-      "event": "CPI m/m"
-    },
-    {
-      "time": "5:30am",
-      "currency": "USD",
-      "impact": "HIGH",
-      "event": "CPI y/y"
-    },
-    {
-      "time": "7:00am",
+      "time": "10:00am",
       "currency": "USD",
       "impact": "HIGH",
       "event": "Fed Chairman Warsh Testifies"
     }
   ],
-  "summary": "5 kill-list event(s) found \u2014 SKIP TRADE"
+  "summary": "3 kill-list event(s) found \u2014 SKIP TRADE"
 }
