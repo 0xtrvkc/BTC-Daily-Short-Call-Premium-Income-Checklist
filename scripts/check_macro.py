@@ -38,7 +38,7 @@ import requests
 from bs4 import BeautifulSoup
 
 # ── Config ────────────────────────────────────────────────────────────────────
-ET_TZ       = ZoneInfo("America/New York")
+ET_TZ       = ZoneInfo("America/New_York")
 BANGKOK_TZ  = ZoneInfo("Asia/Bangkok")
 OUTPUT_PATH = Path(__file__).parent.parent / "data" / "macro.json"
 FF_BASE_URL = "https://www.forexfactory.com/calendar"
