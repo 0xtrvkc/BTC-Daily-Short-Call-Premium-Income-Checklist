@@ -1,33 +1,25 @@
 name: module1_macro calendar check
-
 on:
   schedule:
     # 23:00 UTC = 06:00 Bangkok (GMT+7) — runs before your 8am session
     - cron: "0 23 * * *"
   workflow_dispatch: # allow manual trigger from GitHub UI
-
 permissions:
   contents: write # needed to commit macro.json back to repo
-
 jobs:
   check-macro:
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4
-
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
           python-version: "3.11"
-
       - name: Install dependencies
-        run: pip install requests beautifulsoup4
-
+        run: pip install requests beautifulsoup4 tzdata
       - name: Run macro check
         run: python scripts/check_macro.py
-
       - name: Commit macro.json
         run: |
           git config user.name  "github-actions[bot]"
