@@ -1,23 +1,26 @@
 {
   "date": "2026-07-15",
-  "checked_at": "2026-07-14T23:40:08Z",
+  "checked_at": "2026-07-15T12:52:17Z",
   "skip": true,
   "event_count": 3,
   "events": [
     {
-      "time": "8:30am",
+      "time": "7:30pm",
+      "time_confirmed": true,
       "currency": "USD",
       "impact": "HIGH",
       "event": "Core PPI m/m"
     },
     {
-      "time": "8:30am",
+      "time": "7:30pm",
+      "time_confirmed": true,
       "currency": "USD",
       "impact": "HIGH",
       "event": "PPI m/m"
     },
     {
-      "time": "10:00am",
+      "time": "9:00pm",
+      "time_confirmed": true,
       "currency": "USD",
       "impact": "HIGH",
       "event": "Fed Chairman Warsh Testifies"
