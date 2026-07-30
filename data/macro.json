@@ -1,23 +1,8 @@
 {
-  "date": "2026-07-30",
-  "checked_at": "2026-07-29T23:50:58Z",
-  "skip": true,
-  "event_count": 2,
-  "events": [
-    {
-      "time": "12:00am",
-      "time_confirmed": true,
-      "currency": "USD",
-      "impact": "HIGH",
-      "event": "FOMC Statement"
-    },
-    {
-      "time": "12:30am",
-      "time_confirmed": true,
-      "currency": "USD",
-      "impact": "HIGH",
-      "event": "FOMC Press Conference"
-    }
-  ],
-  "summary": "2 kill-list event(s) found \u2014 SKIP TRADE"
+  "date": "2026-07-31",
+  "checked_at": "2026-07-30T23:51:29Z",
+  "skip": false,
+  "event_count": 0,
+  "events": [],
+  "summary": "No FOMC/CPI/NFP/Fed Speech today \u2014 PROCEED"
 }
