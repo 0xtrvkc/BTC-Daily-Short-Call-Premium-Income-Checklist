@@ -1,8 +1,30 @@
 {
   "date": "2026-08-07",
-  "checked_at": "2026-08-07T01:39:05Z",
-  "skip": false,
-  "event_count": 0,
-  "events": [],
-  "summary": "No FOMC/CPI/NFP/Fed Speech today \u2014 PROCEED"
+  "checked_at": "2026-08-07T07:45:13Z",
+  "skip": true,
+  "event_count": 3,
+  "events": [
+    {
+      "time": "7:30pm",
+      "time_confirmed": true,
+      "currency": "USD",
+      "impact": "HIGH",
+      "event": "Average Hourly Earnings m/m"
+    },
+    {
+      "time": "7:30pm",
+      "time_confirmed": true,
+      "currency": "USD",
+      "impact": "HIGH",
+      "event": "Non-Farm Employment Change"
+    },
+    {
+      "time": "7:30pm",
+      "time_confirmed": true,
+      "currency": "USD",
+      "impact": "HIGH",
+      "event": "Unemployment Rate"
+    }
+  ],
+  "summary": "3 kill-list event(s) found \u2014 SKIP TRADE"
 }
