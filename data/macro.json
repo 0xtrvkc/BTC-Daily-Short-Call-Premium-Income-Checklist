@@ -1,9 +1,9 @@
 {
-  "date": "2026-10-12",
-  "checked_at": "2026-10-12T01:53:10Z",
+  "date": "2026-10-13",
+  "checked_at": "2026-10-13T03:14:59Z",
   "skip": false,
   "event_count": 0,
   "events": [],
-  "summary": "\u26a0\ufe0f Scrape failed: 403 Client Error: Forbidden for url: https://www.forexfactory.com/calendar?day=oct11.2026 \u2014 verify manually",
-  "error": "403 Client Error: Forbidden for url: https://www.forexfactory.com/calendar?day=oct11.2026"
+  "summary": "\u26a0\ufe0f Scrape failed: 403 Client Error: Forbidden for url: https://www.forexfactory.com/calendar?day=oct12.2026 \u2014 verify manually",
+  "error": "403 Client Error: Forbidden for url: https://www.forexfactory.com/calendar?day=oct12.2026"
 }
